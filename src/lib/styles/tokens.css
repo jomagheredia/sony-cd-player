@@ -1,0 +1,28 @@
+/* CDP-XA7ES design tokens. OKLCH only — every color in every player component derives from here. */
+
+:root {
+	/* Chassis — anodized aluminum, neutral-cool */
+	--chassis-bg: oklch(15% 0.005 260);
+	--chassis-panel: oklch(19% 0.006 260);
+	--chassis-edge: oklch(28% 0.008 260);
+
+	/* Display cavity — warm-dark, amber bleeds into the black */
+	--display-bg: oklch(11% 0.015 60);
+	--display-amber: oklch(82% 0.16 72); /* Active phosphor */
+	--display-amber-mid: oklch(62% 0.13 70); /* Meter mid-range */
+	--display-dim: oklch(45% 0.09 68); /* Inactive segment */
+	--display-peak: oklch(70% 0.2 32); /* Peak-hold / clip */
+
+	/* Controls */
+	--btn-surface: oklch(23% 0.006 260);
+	--btn-border: oklch(32% 0.008 260);
+	--btn-text: oklch(65% 0.012 260);
+	--btn-active: oklch(82% 0.16 72);
+
+	/* Silkscreen */
+	--text-label: oklch(48% 0.01 260);
+	--text-secondary: oklch(60% 0.012 260);
+
+	--radius: 2px;
+	--space: 4px;
+}

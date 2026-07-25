@@ -10,24 +10,25 @@ This is a **SvelteKit** project (Svelte 5, runes mode forced project-wide — se
 
 Two targets, one SvelteKit codebase, switched by **adapter**, not by framework:
 
-| Target | Adapter | Purpose |
-|---|---|---|
+| Target     | Adapter                                                                     | Purpose                                                                      |
+| ---------- | --------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
 | `deployed` | `@sveltejs/adapter-auto` (resolves to `@sveltejs/adapter-vercel` on Vercel) | Real analyser data via `/api/*` server routes, batched metadata, hidden keys |
-| `artifact` | `@sveltejs/adapter-static` (SPA fallback) + `vite-plugin-singlefile` | Portable, double-click, one `.html`, portfolio drop-in |
+| `artifact` | `@sveltejs/adapter-static` (SPA fallback) + `vite-plugin-singlefile`        | Portable, double-click, one `.html`, portfolio drop-in                       |
 
 This scaffold already configures the adapter inline, inside the `sveltekit()` Vite plugin call in `vite.config.ts` — there is no separate `svelte.config.js`. The artifact build follows the same pattern in a second Vite config that swaps the adapter:
 
 ```jsonc
 // package.json scripts
 {
-  "dev":            "vite dev",
-  "build":          "vite build",                          // deployed target (adapter-auto)
-  "build:artifact": "vite build --config vite.config.artifact.ts",
-  "preview":        "vite preview"
+	"dev": "vite dev",
+	"build": "vite build", // deployed target (adapter-auto)
+	"build:artifact": "vite build --config vite.config.artifact.ts",
+	"preview": "vite preview"
 }
 ```
 
 `vite.config.artifact.ts` mirrors `vite.config.ts` but:
+
 - passes `adapter: adapterStatic({ pages: 'build', assets: 'build', fallback: 'index.html', strict: false })` to `sveltekit()` instead of `adapter-auto`
 - adds the `viteSingleFile()` plugin from `vite-plugin-singlefile`
 - sets `define: { 'import.meta.env.VITE_USE_PROXY': 'false' }` (or an equivalent env var) so the client knows to call archive.org directly instead of `/api/*`
@@ -147,12 +148,12 @@ Every source resolves to this shape (`src/lib/api/types.ts`), so the player neve
 
 ```typescript
 interface Track {
-  id:        string;
-  title:     string;
-  artist:    string;
-  streamUrl: string;
-  duration?: number;   // seconds, resolved on load if absent
-  source:    'archive' | 'jamendo' | 'musopen';
+	id: string;
+	title: string;
+	artist: string;
+	streamUrl: string;
+	duration?: number; // seconds, resolved on load if absent
+	source: 'archive' | 'jamendo' | 'musopen';
 }
 ```
 
@@ -164,18 +165,18 @@ Modeled as a discriminated union — the display is a pure function of this stat
 
 ```typescript
 type PlaybackState =
-  | { status: 'empty' }
-  | { status: 'loading';  trackIndex: number }
-  | { status: 'ready';    trackIndex: number }
-  | { status: 'playing';  trackIndex: number }
-  | { status: 'paused';   trackIndex: number }
-  | { status: 'error';    trackIndex: number; reason: string };
+	| { status: 'empty' }
+	| { status: 'loading'; trackIndex: number }
+	| { status: 'ready'; trackIndex: number }
+	| { status: 'playing'; trackIndex: number }
+	| { status: 'paused'; trackIndex: number }
+	| { status: 'error'; trackIndex: number; reason: string };
 
 interface QueueState {
-  tracks:  Track[];
-  shuffle: boolean;
-  repeat:  'off' | 'track' | 'all';
-  volume:  number;
+	tracks: Track[];
+	shuffle: boolean;
+	repeat: 'off' | 'track' | 'all';
+	volume: number;
 }
 ```
 
@@ -189,11 +190,11 @@ Five archive.org identifiers loaded on mount so the player works on first open. 
 
 ```typescript
 const DEFAULT_IDS = [
-  'gd1977-05-08.sbd.hicks.4982.sbeok.shnf',
-  'MusOpen_Beethoven_Symphony_No_5',
-  'afrechot_nocturne_op9_no2',
-  'cd_guitar-music-by-heitor-villa-lobos_heitor-villa-lobos',
-  'PianoSonataNo14MoonlightBeethoven'
+	'gd1977-05-08.sbd.hicks.4982.sbeok.shnf',
+	'MusOpen_Beethoven_Symphony_No_5',
+	'afrechot_nocturne_op9_no2',
+	'cd_guitar-music-by-heitor-villa-lobos_heitor-villa-lobos',
+	'PianoSonataNo14MoonlightBeethoven'
 ];
 ```
 
