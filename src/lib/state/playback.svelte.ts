@@ -1,6 +1,7 @@
 /* Playback state machine — transitions are driven by the audio engine. */
 import { toStreamUrl } from '$lib/api/client';
 import { engine } from '$lib/audio/engine';
+import { meter } from '$lib/audio/meter.svelte';
 import { queue } from './queue.svelte';
 
 export type PlaybackState =
@@ -35,16 +36,19 @@ function ensureWired() {
 			if (pendingAutoplay) {
 				void engine.play();
 			} else {
+				meter.reset();
 				current = { status: 'ready', trackIndex: current.trackIndex };
 			}
 		},
 		onPlaying() {
 			if (!('trackIndex' in current)) return;
 			current = { status: 'playing', trackIndex: current.trackIndex };
+			meter.start();
 		},
 		onPaused() {
 			if (current.status !== 'playing') return;
 			current = { status: 'paused', trackIndex: current.trackIndex };
+			meter.freeze();
 		},
 		onEnded() {
 			if (!('trackIndex' in current)) return;
@@ -69,6 +73,7 @@ function handleEnded(trackIndex: number) {
 	const nextIndex = findPlayable(trackIndex, 1);
 	if (nextIndex == null || (nextIndex === trackIndex && queue.repeat !== 'all')) {
 		engine.stop();
+		meter.reset();
 		currentTime = 0;
 		current = { status: 'ready', trackIndex };
 		return;
@@ -91,12 +96,14 @@ function load(trackIndex: number, autoplay = true) {
 	clearPending();
 	const track = queue.tracks[trackIndex];
 	if (!track) {
+		meter.reset();
 		current = { status: 'empty' };
 		currentTime = 0;
 		duration = 0;
 		return;
 	}
 	if (!track.streamUrl) {
+		meter.reset();
 		current = { status: 'error', trackIndex, reason: 'NO STREAM' };
 		engine.stop();
 		currentTime = 0;
@@ -112,6 +119,7 @@ function load(trackIndex: number, autoplay = true) {
 	}
 
 	pendingAutoplay = autoplay;
+	meter.reset();
 	current = { status: 'loading', trackIndex };
 	currentTime = 0;
 	duration = track.duration ?? 0;
@@ -140,6 +148,7 @@ function stop() {
 	if (!('trackIndex' in current)) return;
 	pendingAutoplay = false;
 	engine.stop();
+	meter.reset();
 	currentTime = 0;
 	current = { status: 'ready', trackIndex: current.trackIndex };
 }
@@ -191,6 +200,7 @@ function fail(reason: string) {
 	const trackIndex = 'trackIndex' in current ? current.trackIndex : 0;
 	pendingAutoplay = false;
 	engine.stop();
+	meter.reset();
 	currentTime = 0;
 	current = { status: 'error', trackIndex, reason };
 	pendingTimer = setTimeout(() => {

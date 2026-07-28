@@ -14,13 +14,19 @@ export type EngineCallbacks = {
 	onCanPlay?: () => void;
 };
 
+export type AnalyserPair = {
+	left: AnalyserNode;
+	right: AnalyserNode;
+};
+
 let audio: HTMLAudioElement | null = null;
 let callbacks: EngineCallbacks = {};
 let intentionalPause = false;
 let loadGeneration = 0;
 
 let audioCtx: AudioContext | null = null;
-let analyser: AnalyserNode | null = null;
+let analyserL: AnalyserNode | null = null;
+let analyserR: AnalyserNode | null = null;
 let mediaSource: MediaElementAudioSourceNode | null = null;
 let gateCheckTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -67,28 +73,37 @@ function finiteDuration(): number {
 	return Number.isFinite(d) ? d : 0;
 }
 
-/** Build the Web Audio graph once. MediaElementSource can only be created once per element. */
-function ensureGraph(): AnalyserNode {
+/**
+ * Build the Web Audio graph once. MediaElementSource can only be created once per element.
+ * mediaSource → destination (audible)
+ * mediaSource → ChannelSplitter → analyserL / analyserR (metering)
+ */
+function ensureGraph(): AnalyserPair {
 	const el = getAudio();
 	if (!audioCtx) {
 		audioCtx = new AudioContext();
-		analyser = audioCtx.createAnalyser();
-		analyser.fftSize = 2048;
 		mediaSource = audioCtx.createMediaElementSource(el);
-		/* Mono analyser for the CORS gate. ChannelSplitter L/R arrives in phase 5. */
-		mediaSource.connect(analyser);
-		analyser.connect(audioCtx.destination);
+
+		const splitter = audioCtx.createChannelSplitter(2);
+		analyserL = audioCtx.createAnalyser();
+		analyserR = audioCtx.createAnalyser();
+		analyserL.fftSize = 2048;
+		analyserR.fftSize = 2048;
+
+		mediaSource.connect(audioCtx.destination);
+		mediaSource.connect(splitter);
+		splitter.connect(analyserL, 0);
+		splitter.connect(analyserR, 1);
 	}
-	return analyser!;
+	return { left: analyserL!, right: analyserR! };
 }
 
 function scheduleCorsGateCheck() {
 	clearTimeout(gateCheckTimer);
 	gateCheckTimer = setTimeout(() => {
-		if (!analyser || !audio || audio.paused) return;
-		const sample = sampleTimeDomain(analyser);
+		if (!analyserL || !audio || audio.paused) return;
+		const sample = sampleTimeDomain(analyserL);
 		const { min, max, ok } = sample;
-		/* Exact check from ai-context.md — do not remove until phase 5 meter is proven. */
 		console.info(
 			'[CDP-XA7ES CORS gate]',
 			min,
@@ -181,8 +196,9 @@ function setVolume(value: number) {
 	getAudio().volume = Math.min(1, Math.max(0, value));
 }
 
-function getAnalyser(): AnalyserNode | null {
-	return analyser;
+function getAnalysers(): AnalyserPair | null {
+	if (!analyserL || !analyserR) return null;
+	return { left: analyserL, right: analyserR };
 }
 
 export const engine = {
@@ -195,5 +211,5 @@ export const engine = {
 	getCurrentTime,
 	getDuration,
 	setVolume,
-	getAnalyser
+	getAnalysers
 };

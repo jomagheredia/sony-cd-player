@@ -4,6 +4,22 @@ Short entries after each build phase: what shipped, what's still open. Newest fi
 
 ---
 
+## 2026-07-27 — Phase 5: live peak meter
+
+**What shipped:**
+
+- Web Audio graph is now `MediaElementSource → destination` plus `ChannelSplitter → analyserL / analyserR` for true stereo metering.
+- `src/lib/audio/metering.ts` — time-domain peak + RMS → 14-segment dB mapping, peak-hold (1200ms then −1 segment / 80ms), artifact-mode simulated envelope, `prefers-reduced-motion` holds at RMS (no peak chase).
+- `src/lib/audio/meter.svelte.ts` — rAF loop exposing reactive L/R display levels; start on play, freeze on pause, reset on stop/load/error.
+- Display panel drives `<PeakMeter>` from live levels. Verified: Beethoven 5 hit ~11–12 lit segments while playing; pause froze non-zero; stop returned to 0. CORS gate still PASS.
+
+**What's still open:**
+
+- Phase 6 next: `/api/resolve` batching, `/api/search`, replace hardcoded queue URLs, keyboard shortcuts, title marquee.
+- Phase 7: dual build target (`adapter-static` + single-file artifact) and Vercel deploy.
+
+---
+
 ## 2026-07-27 — Phase 4: CORS gate cleared
 
 **What shipped:**

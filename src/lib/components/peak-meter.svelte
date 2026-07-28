@@ -1,7 +1,7 @@
 <script lang="ts">
 	interface Props {
 		channel: 'L' | 'R';
-		/** Segments lit, 0-14. Static/example in the phase-1 shell — driven by AnalyserNode from phase 5 on. */
+		/** Segments lit, 0–14. Driven by AnalyserNode metering (peak-hold included). */
 		level?: number;
 	}
 
