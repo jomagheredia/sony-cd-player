@@ -4,6 +4,24 @@ Short entries after each build phase: what shipped, what's still open. Newest fi
 
 ---
 
+## 2026-07-27 — Phase 3: audio engine, one hardcoded track
+
+**What shipped:**
+
+- `src/lib/audio/engine.ts` — HTMLAudioElement wrapper (load / play / pause / stop / seek / volume). No Web Audio graph and no `crossOrigin` yet — those wait for the CORS proxy in phase 4.
+- Playback state machine now drives real audio: `loading` → `canplay` → `playing`/`ready`, with pause/stop/ended/error wired from element events. Fake load timers and the status-badge `devCycle` affordance are gone.
+- Five hardcoded archive.org streams in the queue (nocturne, So What cover, Blue Rondo guitar arr., Beethoven 5 / Moonlight) so every track-list row plays before `/api/resolve` lands in phase 6.
+- Display elapsed time + seek bar track engine position; seek is clickable (and ←/→ when focused). Previous restarts the current track when past 3s.
+- Repeat modes honored on `ended` (`track` loops, `all`/`off` advance or stop). Verified in a real browser: play → pause → prev-to-0 → cross-track load → stop.
+
+**What's still open:**
+
+- Meter still dead (level 0) — intentional until the CORS gate clears.
+- Phase 4 next: `/api/stream` proxy + confirm `AnalyserNode` returns non-flat data before any meter styling.
+- Keyboard shortcuts (global), title marquee, `/api/resolve` batching, search, dual build target — later phases.
+
+---
+
 ## 2026-07-24 — Phase 2: display panel wired to the playback state machine
 
 **What shipped:**
