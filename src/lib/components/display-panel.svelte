@@ -24,8 +24,42 @@
 		}[state.status]
 	);
 
-	const elapsed = $derived('trackIndex' in state ? '00:00' : '--:--');
-	const total = $derived(formatTime(track?.duration));
+	const elapsed = $derived('trackIndex' in state ? formatTime(playback.currentTime) : '--:--');
+	const totalSeconds = $derived(
+		playback.duration > 0 ? playback.duration : (track?.duration ?? undefined)
+	);
+	const total = $derived(formatTime(totalSeconds));
+	const seekPercent = $derived(
+		totalSeconds && totalSeconds > 0
+			? Math.min(100, (playback.currentTime / totalSeconds) * 100)
+			: 0
+	);
+	const canSeek = $derived(
+		state.status === 'playing' || state.status === 'paused' || state.status === 'ready'
+	);
+
+	function onSeekClick(event: MouseEvent) {
+		if (!canSeek) return;
+		const el = event.currentTarget as HTMLElement;
+		const rect = el.getBoundingClientRect();
+		if (rect.width <= 0) return;
+		playback.seek((event.clientX - rect.left) / rect.width);
+	}
+
+	function onSeekKeydown(event: KeyboardEvent) {
+		if (!canSeek) return;
+		if (event.key === 'ArrowLeft') {
+			event.preventDefault();
+			const total = totalSeconds && totalSeconds > 0 ? totalSeconds : 0;
+			if (total <= 0) return;
+			playback.seek(Math.max(0, playback.currentTime - 5) / total);
+		} else if (event.key === 'ArrowRight') {
+			event.preventDefault();
+			const total = totalSeconds && totalSeconds > 0 ? totalSeconds : 0;
+			if (total <= 0) return;
+			playback.seek(Math.min(total, playback.currentTime + 5) / total);
+		}
+	}
 </script>
 
 <div class="display">
@@ -33,19 +67,16 @@
 
 	<div class="display-row display-row--status">
 		<span class="track-number">TRACK {trackNumber}</span>
-		<!-- Dev-only: clicking the badge steps through every display state. Remove in phase 3. -->
-		<button
-			type="button"
+		<span
 			class="status-badge"
 			class:blink-slow={state.status === 'empty'}
 			class:blink-thrice={state.status === 'error'}
-			onclick={playback.devCycle}
-			aria-label="Playback status: {badgeText}. Click to cycle display states (dev only)"
+			aria-live="polite"
 		>
 			{badgeText}{#if state.status === 'loading'}<span class="dots" aria-hidden="true">
 					<span>·</span><span>·</span><span>·</span>
 				</span>{/if}
-		</button>
+		</span>
 	</div>
 
 	<div class="display-row display-row--title">
@@ -59,9 +90,21 @@
 
 	<div class="display-row display-row--time">
 		<span class="time-elapsed">{elapsed}</span>
-		<div class="seek-track">
-			<div class="seek-fill" style:width="0%"></div>
-			<div class="seek-handle" style:left="0%"></div>
+		<div
+			class="seek-track"
+			class:seek-track--active={canSeek}
+			role="slider"
+			tabindex={canSeek ? 0 : -1}
+			aria-label="Seek"
+			aria-valuemin={0}
+			aria-valuemax={Math.floor(totalSeconds ?? 0)}
+			aria-valuenow={Math.floor(playback.currentTime)}
+			aria-disabled={!canSeek}
+			onclick={onSeekClick}
+			onkeydown={onSeekKeydown}
+		>
+			<div class="seek-fill" style:width="{seekPercent}%"></div>
+			<div class="seek-handle" style:left="{seekPercent}%"></div>
 		</div>
 		<span class="time-total">{total}</span>
 	</div>
@@ -111,19 +154,10 @@
 	}
 
 	.status-badge {
-		background: none;
-		border: 0;
-		padding: 0;
-		cursor: pointer;
 		font-family: 'Share Tech Mono', monospace;
 		color: var(--display-amber-mid);
 		font-size: 0.8rem;
 		letter-spacing: 0.15em;
-	}
-
-	.status-badge:focus-visible {
-		outline: 2px solid var(--btn-active);
-		outline-offset: 2px;
 	}
 
 	.status-badge.blink-slow {
@@ -192,6 +226,15 @@
 		height: 2px;
 		margin: 0 calc(var(--space) * 3);
 		background: var(--display-dim);
+	}
+
+	.seek-track--active {
+		cursor: pointer;
+	}
+
+	.seek-track:focus-visible {
+		outline: 2px solid var(--btn-active);
+		outline-offset: 4px;
 	}
 
 	.seek-fill {

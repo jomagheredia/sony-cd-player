@@ -1,5 +1,6 @@
-/* Playback state machine. In phase 2 transitions are driven by the transport controls
-   against fake timers — the audio engine becomes the transition source in phase 3. */
+/* Playback state machine — transitions are driven by the audio engine. */
+import { toStreamUrl } from '$lib/api/client';
+import { engine } from '$lib/audio/engine';
 import { queue } from './queue.svelte';
 
 export type PlaybackState =
@@ -10,98 +11,213 @@ export type PlaybackState =
 	| { status: 'paused'; trackIndex: number }
 	| { status: 'error'; trackIndex: number; reason: string };
 
-const FAKE_LOAD_MS = 600;
 const ERROR_ADVANCE_MS = 1600; // 3 blinks at ~500ms each, then auto-advance
+const PREV_RESTART_SECONDS = 3;
 
 let current = $state<PlaybackState>({ status: 'empty' });
+let currentTime = $state(0);
+let duration = $state(0);
 let pendingTimer: ReturnType<typeof setTimeout> | undefined;
+let pendingAutoplay = false;
+let wired = false;
 
 function clearPending() {
 	clearTimeout(pendingTimer);
 	pendingTimer = undefined;
 }
 
+function ensureWired() {
+	if (wired || typeof window === 'undefined') return;
+	wired = true;
+	engine.connect({
+		onCanPlay() {
+			if (current.status !== 'loading') return;
+			if (pendingAutoplay) {
+				void engine.play();
+			} else {
+				current = { status: 'ready', trackIndex: current.trackIndex };
+			}
+		},
+		onPlaying() {
+			if (!('trackIndex' in current)) return;
+			current = { status: 'playing', trackIndex: current.trackIndex };
+		},
+		onPaused() {
+			if (current.status !== 'playing') return;
+			current = { status: 'paused', trackIndex: current.trackIndex };
+		},
+		onEnded() {
+			if (!('trackIndex' in current)) return;
+			handleEnded(current.trackIndex);
+		},
+		onError(reason) {
+			fail(reason);
+		},
+		onTimeUpdate(time, total) {
+			currentTime = time;
+			if (total > 0) duration = total;
+		}
+	});
+}
+
+function handleEnded(trackIndex: number) {
+	if (queue.repeat === 'track') {
+		engine.seek(0);
+		void engine.play();
+		return;
+	}
+	const nextIndex = findPlayable(trackIndex, 1);
+	if (nextIndex == null || (nextIndex === trackIndex && queue.repeat !== 'all')) {
+		engine.stop();
+		currentTime = 0;
+		current = { status: 'ready', trackIndex };
+		return;
+	}
+	load(nextIndex, true);
+}
+
+function findPlayable(from: number, direction: 1 | -1): number | null {
+	const len = queue.tracks.length;
+	if (len === 0) return null;
+	for (let step = 1; step <= len; step++) {
+		const idx = (from + direction * step + len * step) % len;
+		if (queue.tracks[idx]?.streamUrl) return idx;
+	}
+	return null;
+}
+
 function load(trackIndex: number, autoplay = true) {
+	ensureWired();
 	clearPending();
+	const track = queue.tracks[trackIndex];
+	if (!track) {
+		current = { status: 'empty' };
+		currentTime = 0;
+		duration = 0;
+		return;
+	}
+	if (!track.streamUrl) {
+		current = { status: 'error', trackIndex, reason: 'NO STREAM' };
+		engine.stop();
+		currentTime = 0;
+		pendingTimer = setTimeout(() => {
+			const target = findPlayable(trackIndex, 1);
+			if (target == null) {
+				current = { status: 'empty' };
+				return;
+			}
+			load(target, true);
+		}, ERROR_ADVANCE_MS);
+		return;
+	}
+
+	pendingAutoplay = autoplay;
 	current = { status: 'loading', trackIndex };
-	pendingTimer = setTimeout(() => {
-		current = autoplay ? { status: 'playing', trackIndex } : { status: 'ready', trackIndex };
-	}, FAKE_LOAD_MS);
+	currentTime = 0;
+	duration = track.duration ?? 0;
+	engine.setVolume(queue.volume);
+	engine.load(toStreamUrl(track.streamUrl));
 }
 
 function toggle() {
+	ensureWired();
 	if (current.status === 'playing') {
-		current = { status: 'paused', trackIndex: current.trackIndex };
+		engine.pause();
 	} else if (current.status === 'paused' || current.status === 'ready') {
-		current = { status: 'playing', trackIndex: current.trackIndex };
+		engine.setVolume(queue.volume);
+		void engine.play();
 	} else if (current.status === 'empty' && queue.tracks.length > 0) {
-		load(0);
+		const first = queue.tracks.findIndex((t) => Boolean(t.streamUrl));
+		load(first >= 0 ? first : 0);
+	} else if (current.status === 'error') {
+		load(current.trackIndex);
 	}
 }
 
 function stop() {
+	ensureWired();
 	clearPending();
-	if ('trackIndex' in current) {
-		current = { status: 'ready', trackIndex: current.trackIndex };
-	}
+	if (!('trackIndex' in current)) return;
+	pendingAutoplay = false;
+	engine.stop();
+	currentTime = 0;
+	current = { status: 'ready', trackIndex: current.trackIndex };
 }
 
 function next() {
 	if (queue.tracks.length === 0) return;
 	const keepPlaying = current.status === 'playing' || current.status === 'loading';
 	const from = 'trackIndex' in current ? current.trackIndex : -1;
-	load((from + 1) % queue.tracks.length, keepPlaying);
+	const target = findPlayable(from, 1);
+	if (target == null) return;
+	load(target, keepPlaying);
 }
 
 function previous() {
-	// Spec: previous track, or seek to 0 if past 3s — position doesn't exist until
-	// the engine lands in phase 3, so this is always "previous track" for now.
+	ensureWired();
 	if (queue.tracks.length === 0) return;
+
+	/* Spec: seek to 0 if past 3s on the current track; otherwise go to previous. */
+	if (
+		'trackIndex' in current &&
+		(current.status === 'playing' || current.status === 'paused' || current.status === 'ready') &&
+		engine.getCurrentTime() > PREV_RESTART_SECONDS
+	) {
+		engine.seek(0);
+		currentTime = 0;
+		return;
+	}
+
 	const keepPlaying = current.status === 'playing' || current.status === 'loading';
-	const from = 'trackIndex' in current ? current.trackIndex : 1;
-	const len = queue.tracks.length;
-	load((from - 1 + len) % len, keepPlaying);
+	const from = 'trackIndex' in current ? current.trackIndex : 0;
+	const target = findPlayable(from, -1);
+	if (target == null) return;
+	load(target, keepPlaying);
+}
+
+function seek(ratio: number) {
+	ensureWired();
+	if (current.status !== 'playing' && current.status !== 'paused' && current.status !== 'ready') {
+		return;
+	}
+	const total = duration > 0 ? duration : engine.getDuration();
+	if (total <= 0) return;
+	engine.seek(ratio * total);
+	currentTime = engine.getCurrentTime();
 }
 
 function fail(reason: string) {
 	clearPending();
 	const trackIndex = 'trackIndex' in current ? current.trackIndex : 0;
+	pendingAutoplay = false;
+	engine.stop();
+	currentTime = 0;
 	current = { status: 'error', trackIndex, reason };
-	// DISC ERR blinks 3x, then the machine auto-advances past the bad track
-	pendingTimer = setTimeout(next, ERROR_ADVANCE_MS);
-}
-
-/* Dev-only: step the display through every state in order, for verifying the panel
-   renders each one. Wired to a click on the status badge; remove in phase 3 when
-   the audio engine drives transitions for real. */
-const DEV_CYCLE = ['empty', 'loading', 'ready', 'playing', 'paused', 'error'] as const;
-
-function devCycle() {
-	clearPending();
-	const idx = DEV_CYCLE.indexOf(current.status);
-	const nextStatus = DEV_CYCLE[(idx + 1) % DEV_CYCLE.length];
-	const trackIndex = 'trackIndex' in current ? current.trackIndex : 0;
-	switch (nextStatus) {
-		case 'empty':
+	pendingTimer = setTimeout(() => {
+		const target = findPlayable(trackIndex, 1);
+		if (target == null) {
 			current = { status: 'empty' };
-			break;
-		case 'error':
-			fail('demo');
-			break;
-		default:
-			current = { status: nextStatus, trackIndex };
-	}
+			return;
+		}
+		load(target, true);
+	}, ERROR_ADVANCE_MS);
 }
 
 export const playback = {
 	get current() {
 		return current;
 	},
+	get currentTime() {
+		return currentTime;
+	},
+	get duration() {
+		return duration;
+	},
 	load,
 	toggle,
 	stop,
 	next,
 	previous,
-	fail,
-	devCycle
+	seek,
+	fail
 };

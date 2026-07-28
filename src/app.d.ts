@@ -10,4 +10,9 @@ declare global {
 	}
 }
 
+interface ImportMetaEnv {
+	/** Set to "false" in the artifact build so the client skips /api/* proxies. */
+	readonly VITE_USE_PROXY?: string;
+}
+
 export {};

@@ -126,7 +126,7 @@ The route that makes the meter work.
 
 - Pipe archive.org audio through with `Access-Control-Allow-Origin: *`
 - **Forward `Range` request headers and `Content-Range` / `Accept-Ranges` response headers** — without this, seeking silently breaks
-- Allowlist `archive.org` and `*.us.archive.org` hosts only; reject anything else
+- Allowlist `archive.org` and `*.archive.org` hosts only (covers regional CDN edges like `*.us.archive.org` / `*.ca.archive.org`); reject anything else
 - Stream the body (`Response` with a `ReadableStream`), never buffer it
 
 ### `GET /api/search?q=<query>` — `src/routes/api/search/+server.ts`
