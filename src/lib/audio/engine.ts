@@ -1,5 +1,8 @@
-/* Audio engine — HTMLAudioElement only in phase 3.
-   Web Audio graph (AnalyserNode / ChannelSplitterNode) lands after the CORS gate. */
+/* Audio engine — HTMLAudioElement + Web Audio graph for AnalyserNode.
+   Stream URLs must be CORS-clean (/api/stream) before crossOrigin is set. */
+
+import { sampleTimeDomain } from './metering';
+import { useProxy } from '$lib/api/client';
 
 export type EngineCallbacks = {
 	onPlaying?: () => void;
@@ -16,6 +19,11 @@ let callbacks: EngineCallbacks = {};
 let intentionalPause = false;
 let loadGeneration = 0;
 
+let audioCtx: AudioContext | null = null;
+let analyser: AnalyserNode | null = null;
+let mediaSource: MediaElementAudioSourceNode | null = null;
+let gateCheckTimer: ReturnType<typeof setTimeout> | undefined;
+
 function getAudio(): HTMLAudioElement {
 	if (typeof window === 'undefined') {
 		throw new Error('Audio engine is browser-only');
@@ -23,8 +31,6 @@ function getAudio(): HTMLAudioElement {
 	if (!audio) {
 		audio = new Audio();
 		audio.preload = 'auto';
-		/* Do not set crossOrigin here — that requires CORS-clean audio from /api/stream.
-		   Playback works without it; analysis needs the proxy (phase 4). */
 
 		audio.addEventListener('loadedmetadata', () => {
 			callbacks.onTimeUpdate?.(audio!.currentTime, finiteDuration());
@@ -32,6 +38,7 @@ function getAudio(): HTMLAudioElement {
 		audio.addEventListener('playing', () => {
 			intentionalPause = false;
 			callbacks.onPlaying?.();
+			scheduleCorsGateCheck();
 		});
 		audio.addEventListener('pause', () => {
 			if (intentionalPause || audio!.ended) return;
@@ -60,6 +67,38 @@ function finiteDuration(): number {
 	return Number.isFinite(d) ? d : 0;
 }
 
+/** Build the Web Audio graph once. MediaElementSource can only be created once per element. */
+function ensureGraph(): AnalyserNode {
+	const el = getAudio();
+	if (!audioCtx) {
+		audioCtx = new AudioContext();
+		analyser = audioCtx.createAnalyser();
+		analyser.fftSize = 2048;
+		mediaSource = audioCtx.createMediaElementSource(el);
+		/* Mono analyser for the CORS gate. ChannelSplitter L/R arrives in phase 5. */
+		mediaSource.connect(analyser);
+		analyser.connect(audioCtx.destination);
+	}
+	return analyser!;
+}
+
+function scheduleCorsGateCheck() {
+	clearTimeout(gateCheckTimer);
+	gateCheckTimer = setTimeout(() => {
+		if (!analyser || !audio || audio.paused) return;
+		const sample = sampleTimeDomain(analyser);
+		const { min, max, ok } = sample;
+		/* Exact check from ai-context.md — do not remove until phase 5 meter is proven. */
+		console.info(
+			'[CDP-XA7ES CORS gate]',
+			min,
+			max,
+			ok ? 'PASS' : 'FAIL (silent — fix /api/stream)'
+		);
+		(window as Window & { __cdpCorsGate?: typeof sample }).__cdpCorsGate = sample;
+	}, 750);
+}
+
 function connect(next: EngineCallbacks) {
 	callbacks = next;
 }
@@ -69,6 +108,15 @@ function load(url: string) {
 	const generation = ++loadGeneration;
 	intentionalPause = true;
 	el.pause();
+
+	/* crossOrigin must be set before src. Only safe when audio is CORS-clean (proxy). */
+	if (useProxy()) {
+		el.crossOrigin = 'anonymous';
+		ensureGraph();
+	} else {
+		el.removeAttribute('crossOrigin');
+	}
+
 	el.src = url;
 	el.load();
 
@@ -84,6 +132,12 @@ function load(url: string) {
 async function play() {
 	const el = getAudio();
 	intentionalPause = false;
+	if (useProxy()) {
+		ensureGraph();
+		if (audioCtx?.state === 'suspended') {
+			await audioCtx.resume();
+		}
+	}
 	try {
 		await el.play();
 	} catch (err) {
@@ -127,6 +181,10 @@ function setVolume(value: number) {
 	getAudio().volume = Math.min(1, Math.max(0, value));
 }
 
+function getAnalyser(): AnalyserNode | null {
+	return analyser;
+}
+
 export const engine = {
 	connect,
 	load,
@@ -136,5 +194,6 @@ export const engine = {
 	seek,
 	getCurrentTime,
 	getDuration,
-	setVolume
+	setVolume,
+	getAnalyser
 };

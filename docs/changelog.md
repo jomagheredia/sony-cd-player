@@ -4,6 +4,22 @@ Short entries after each build phase: what shipped, what's still open. Newest fi
 
 ---
 
+## 2026-07-27 — Phase 4: CORS gate cleared
+
+**What shipped:**
+
+- `src/routes/api/stream/+server.ts` — archive.org audio proxy with `Access-Control-Allow-Origin: *`, Range / Content-Range forwarding, and host allowlist (`archive.org` + `*.archive.org` for regional CDN edges like `*.ca.archive.org`). Rejects non-IA hosts.
+- `src/lib/api/client.ts` — `toStreamUrl()` routes media through `/api/stream` unless `VITE_USE_PROXY=false` (artifact build).
+- Engine now sets `crossOrigin="anonymous"`, builds a one-shot Web Audio graph (`MediaElementSource → AnalyserNode → destination`), and logs the ai-context CORS gate sample on play (`[CDP-XA7ES CORS gate] min max PASS|FAIL`). `src/lib/audio/metering.ts` holds `sampleTimeDomain()`.
+- Verified: proxy returns 200 / 206 with CORS headers; seek still works through the proxy; analyser time-domain min/max are not stuck at `128` while playing.
+
+**What's still open:**
+
+- Phase 5 next: peak meter driven by real analyser data (ChannelSplitter L/R, peak-hold, segment mapping). Do not fake the meter.
+- `/api/resolve`, `/api/search`, keyboard shortcuts, marquee, dual build target — later phases.
+
+---
+
 ## 2026-07-27 — Phase 3: audio engine, one hardcoded track
 
 **What shipped:**

@@ -1,4 +1,5 @@
 /* Playback state machine — transitions are driven by the audio engine. */
+import { toStreamUrl } from '$lib/api/client';
 import { engine } from '$lib/audio/engine';
 import { queue } from './queue.svelte';
 
@@ -115,7 +116,7 @@ function load(trackIndex: number, autoplay = true) {
 	currentTime = 0;
 	duration = track.duration ?? 0;
 	engine.setVolume(queue.volume);
-	engine.load(track.streamUrl);
+	engine.load(toStreamUrl(track.streamUrl));
 }
 
 function toggle() {
