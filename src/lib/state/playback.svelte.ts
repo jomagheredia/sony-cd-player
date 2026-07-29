@@ -84,6 +84,16 @@ function handleEnded(trackIndex: number) {
 function findPlayable(from: number, direction: 1 | -1): number | null {
 	const len = queue.tracks.length;
 	if (len === 0) return null;
+
+	const playable = queue.tracks.map((t, i) => (t.streamUrl ? i : -1)).filter((i) => i >= 0);
+	if (playable.length === 0) return null;
+
+	if (queue.shuffle && playable.length > 1) {
+		const others = playable.filter((i) => i !== from);
+		const pool = others.length > 0 ? others : playable;
+		return pool[Math.floor(Math.random() * pool.length)] ?? null;
+	}
+
 	for (let step = 1; step <= len; step++) {
 		const idx = (from + direction * step + len * step) % len;
 		if (queue.tracks[idx]?.streamUrl) return idx;
@@ -195,6 +205,18 @@ function seek(ratio: number) {
 	currentTime = engine.getCurrentTime();
 }
 
+function seekBy(deltaSeconds: number) {
+	ensureWired();
+	if (current.status !== 'playing' && current.status !== 'paused' && current.status !== 'ready') {
+		return;
+	}
+	const total = duration > 0 ? duration : engine.getDuration();
+	if (total <= 0) return;
+	const next = Math.min(total, Math.max(0, engine.getCurrentTime() + deltaSeconds));
+	engine.seek(next);
+	currentTime = engine.getCurrentTime();
+}
+
 function fail(reason: string) {
 	clearPending();
 	const trackIndex = 'trackIndex' in current ? current.trackIndex : 0;
@@ -229,5 +251,6 @@ export const playback = {
 	next,
 	previous,
 	seek,
+	seekBy,
 	fail
 };

@@ -1,9 +1,81 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import '$lib/styles/tokens.css';
+	import { DEFAULT_IDS, resolveTracks } from '$lib/api/client';
+	import { engine } from '$lib/audio/engine';
+	import { playback } from '$lib/state/playback.svelte';
+	import { queue } from '$lib/state/queue.svelte';
 	import DisplayPanel from './display-panel.svelte';
 	import TransportControls from './transport-controls.svelte';
 	import TrackList from './track-list.svelte';
+
+	onMount(() => {
+		void (async () => {
+			try {
+				const tracks = await resolveTracks([...DEFAULT_IDS]);
+				if (tracks.length > 0) queue.tracks = tracks;
+			} catch {
+				/* Keep empty queue — user can still search. */
+			}
+		})();
+	});
+
+	function isTypingTarget(target: EventTarget | null): boolean {
+		if (!(target instanceof HTMLElement)) return false;
+		const tag = target.tagName;
+		return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target.isContentEditable;
+	}
+
+	function onKeydown(event: KeyboardEvent) {
+		if (event.metaKey || event.ctrlKey || event.altKey) return;
+		if (isTypingTarget(event.target)) return;
+
+		switch (event.key) {
+			case ' ':
+				event.preventDefault();
+				playback.toggle();
+				break;
+			case 'ArrowLeft':
+				event.preventDefault();
+				playback.seekBy(-5);
+				break;
+			case 'ArrowRight':
+				event.preventDefault();
+				playback.seekBy(5);
+				break;
+			case 'ArrowUp':
+				event.preventDefault();
+				engine.setVolume(queue.adjustVolume(0.05));
+				break;
+			case 'ArrowDown':
+				event.preventDefault();
+				engine.setVolume(queue.adjustVolume(-0.05));
+				break;
+			case 'n':
+			case 'N':
+				event.preventDefault();
+				playback.next();
+				break;
+			case 'p':
+			case 'P':
+				event.preventDefault();
+				playback.previous();
+				break;
+			case 's':
+			case 'S':
+				event.preventDefault();
+				queue.toggleShuffle();
+				break;
+			case 'r':
+			case 'R':
+				event.preventDefault();
+				queue.cycleRepeat();
+				break;
+		}
+	}
 </script>
+
+<svelte:window onkeydown={onKeydown} />
 
 <svelte:head>
 	<link rel="preconnect" href="https://fonts.googleapis.com" />

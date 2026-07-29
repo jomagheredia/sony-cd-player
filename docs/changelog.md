@@ -4,6 +4,47 @@ Short entries after each build phase: what shipped, what's still open. Newest fi
 
 ---
 
+## 2026-07-28 — Search feels faster (progressive resolve)
+
+**What shipped:**
+
+- `/api/search` returns advancedsearch hits only (no N metadata waits). Client resolves stream URLs in batches of 3 via `/api/resolve` and appends as each batch lands — `SEARCHING` clears on the first batch.
+- Metadata fetches use a 3.5s timeout and concurrency 4 so one slow archive.org item can't stall the whole search.
+
+**What's still open:**
+
+- Phase 7: dual build + Vercel deploy.
+
+---
+
+## 2026-07-28 — Docs synced to phases 1–6
+
+**What shipped:**
+
+- Updated `CLAUDE.md`, `ai-context.md`, and `docs/architecture.md` so session orientation matches the repo: SvelteKit routes (not bare `/api/*.ts`), file tree includes `archive.ts` / `meter.svelte.ts` / `ui.svelte.ts`, Share Tech Mono marked resolved, build order notes phases 1–6 done / phase 7 next.
+
+**What's still open:**
+
+- Phase 7: dual build + Vercel deploy (unchanged).
+
+---
+
+## 2026-07-28 — Phase 6: resolve, search, keyboard, marquee
+
+**What shipped:**
+
+- `GET /api/resolve` + `GET /api/search` — batch metadata / advanced search → normalized `Track[]` (shared helpers in `src/lib/api/archive.ts`). Dead ids skipped silently.
+- Client `resolveTracks` / `searchTracks` (proxy or direct for artifact). Player shell loads `DEFAULT_IDS` on mount; search appends unique hits. Display flashes `SEARCHING ···` / `NO RESULTS` (2s).
+- Keyboard shortcuts on the chassis (Space, ←/→, N/P, S/R, ↑/↓); ignored while typing in the search field. Shuffle randomizes next/prev when enabled.
+- Title marquee for titles over 28 characters; frozen under `prefers-reduced-motion`.
+- Verified: default queue resolves to 5 tracks, play works, Space pauses, search appends (5 → 20 for “erik satie gymnopedie”).
+
+**What's still open:**
+
+- Phase 7 next: dual build (`adapter-static` + `vite-plugin-singlefile`), Vercel deploy, portfolio screenshot.
+
+---
+
 ## 2026-07-27 — Phase 5: live peak meter
 
 **What shipped:**
