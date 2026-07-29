@@ -4,6 +4,22 @@ Short entries after each build phase: what shipped, what's still open. Newest fi
 
 ---
 
+## 2026-07-28 — Phase 7: dual build target
+
+**What shipped:**
+
+- `vite.config.artifact.ts` — `@sveltejs/adapter-static` (`strict: false`, SPA `fallback`, out dir `build-artifact`) + `kit.output.bundleStrategy: 'inline'` + `VITE_USE_PROXY=false`. Skipped `vite-plugin-singlefile` (Kit-native inline is reliable here).
+- `src/routes/+layout.ts` — `ssr = false` for the SPA shell.
+- `npm run build:artifact` (+ `scripts/prune-artifact.mjs`) → single `build-artifact/index.html` (~252KB). Verified: chassis loads, default queue resolves 5 tracks via direct IA metadata, proxy path stays off (`useProxy` → `false`).
+- `npm run build` (adapter-auto) still compiles `/api/{stream,resolve,search}` with proxy on for Vercel.
+
+**What's still open:**
+
+- Vercel production deploy + portfolio screenshot of the live URL.
+- Opening the artifact via `file://` works for the HTML itself; Share Tech Mono still needs network (Google Fonts). Meter uses the simulated envelope when CORS blocks analysis (expected).
+
+---
+
 ## 2026-07-28 — Search feels faster (progressive resolve)
 
 **What shipped:**

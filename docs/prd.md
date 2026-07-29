@@ -15,7 +15,7 @@ Portfolio context: most Design Engineer artifacts stop at UI + a REST API. This 
 A Sony CDP-XA7ES tribute player — a browser-based front panel for a 1995 Japanese high-end CD transport, streaming public domain audio from the Internet Archive. The signature element is a segmented amber peak-level meter driven by live Web Audio analysis, not animation — a period-correct design choice that grounds the interface in real signal flow.
 
 Two build outputs from one codebase:
-- **Single-file artifact** (`vite-plugin-singlefile` → `.html`) — portfolio drop-in, works offline-ish, falls back to synthesized meter
+- **Single-file artifact** (`adapter-static` + `bundleStrategy: 'inline'` → `.html`) — portfolio drop-in, works offline-ish, falls back to synthesized meter
 - **Deployed app** (Vercel → static + serverless) — real audio analysis, batched metadata, CORS-clean streaming
 
 ---

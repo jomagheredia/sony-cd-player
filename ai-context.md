@@ -57,7 +57,7 @@ If both values are `128`, the audio graph is silent — CORS is blocking analysi
 6. Queue, `/api/resolve` batching, search, keyboard shortcuts, title marquee
 7. Both build targets verified independently
 
-Phases 1–6 are done — see `docs/changelog.md`. Phase 7 is next.
+Phases 1–7 dual-build are done — see `docs/changelog.md`. Remaining: Vercel production deploy + portfolio screenshot.
 
 ---
 

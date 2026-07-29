@@ -13,33 +13,36 @@ Two targets, one SvelteKit codebase, switched by **adapter**, not by framework:
 | Target     | Adapter                                                                     | Purpose                                                                      |
 | ---------- | --------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
 | `deployed` | `@sveltejs/adapter-auto` (resolves to `@sveltejs/adapter-vercel` on Vercel) | Real analyser data via `/api/*` server routes, batched metadata, hidden keys |
-| `artifact` | `@sveltejs/adapter-static` (SPA fallback) + `vite-plugin-singlefile`        | Portable, double-click, one `.html`, portfolio drop-in                       |
+| `artifact` | `@sveltejs/adapter-static` (SPA fallback) + `kit.output.bundleStrategy: 'inline'` | Portable, one `.html`, portfolio drop-in                       |
 
-This scaffold already configures the adapter inline, inside the `sveltekit()` Vite plugin call in `vite.config.ts` — there is no separate `svelte.config.js`. The artifact build follows the same pattern in a second Vite config that swaps the adapter:
+This scaffold configures the adapter inline, inside the `sveltekit()` Vite plugin call in `vite.config.ts` — there is no separate `svelte.config.js`. The artifact build follows the same pattern in a second Vite config that swaps the adapter:
 
 ```jsonc
 // package.json scripts
 {
 	"dev": "vite dev",
-	"build": "vite build", // deployed target (adapter-auto)
-	"build:artifact": "vite build --config vite.config.artifact.ts",
-	"preview": "vite preview"
+	"build": "vite build", // deployed target (adapter-auto → Vercel)
+	"build:artifact": "vite build --config vite.config.artifact.ts && node scripts/prune-artifact.mjs",
+	"preview": "vite preview",
+	"preview:artifact": "python3 -m http.server 4177 --directory build-artifact"
 }
 ```
 
 `vite.config.artifact.ts` mirrors `vite.config.ts` but:
 
-- passes `adapter: adapterStatic({ pages: 'build', assets: 'build', fallback: 'index.html', strict: false })` to `sveltekit()` instead of `adapter-auto`
-- adds the `viteSingleFile()` plugin from `vite-plugin-singlefile`
-- sets `define: { 'import.meta.env.VITE_USE_PROXY': 'false' }` (or an equivalent env var) so the client knows to call archive.org directly instead of `/api/*`
+- passes `adapter: adapterStatic({ pages: 'build-artifact', assets: 'build-artifact', fallback: 'index.html', strict: false })` to `sveltekit()` instead of `adapter-auto`
+- sets `output: { bundleStrategy: 'inline' }` so JS + CSS land inside `index.html` (SvelteKit-native; preferred over `vite-plugin-singlefile`)
+- sets `build.assetsInlineLimit: Infinity` so font assets can embed
+- sets `define: { 'import.meta.env.VITE_USE_PROXY': JSON.stringify('false') }` so the client calls archive.org directly instead of `/api/*`
+- runs `scripts/prune-artifact.mjs` afterward to drop adapter-static sidecars (`_app/`, `robots.txt`) — deliverable is `build-artifact/index.html` alone
 
 **`strict: false` on `adapter-static` matters**: the three `/api/*` routes exist in `src/routes/` but aren't prerenderable, and the artifact target never calls them (client branches on `VITE_USE_PROXY`). Without `strict: false`, `adapter-static` fails the build on those routes even though nothing in the artifact bundle references them.
 
-**Neither `@sveltejs/adapter-static` nor `vite-plugin-singlefile` is installed yet** — both are needed only when Phase 7 (dual build target, per `ai-context.md`) starts. Flagging here so the dependency isn't missed.
-
-**Known implementation risk, same spirit as the CORS gate below**: combining SvelteKit's client/server build pipeline with `vite-plugin-singlefile` is not an officially documented pairing (unlike CORS, which has a known, deterministic fix). It should work for this app because the player is a single route with no server-side data loading in the artifact build, but treat it as unverified until Phase 7 actually produces a working single `.html` file that opens via `file://`. If it doesn't inline cleanly, the fallback is a static multi-file `adapter-static` build (still portable, just not literally one file).
+**SPA shell**: `src/routes/+layout.ts` exports `ssr = false` so both targets hydrate as a client SPA (required for the static fallback page).
 
 The client detects mode at runtime via `import.meta.env.VITE_USE_PROXY`. In artifact mode it calls archive.org directly and degrades gracefully (meter falls back to a simulated envelope, per the fallback spec in `cdp-xa7es-prompt.md`). In deployed mode it calls `/api/*` and gets guaranteed CORS-clean audio.
+
+**Deploy**: `npm run build` on Vercel (Git integration or `npx vercel`). `adapter-auto` selects `@sveltejs/adapter-vercel`; no `vercel.json` required for the three `/api/*` routes.
 
 ---
 
@@ -58,6 +61,7 @@ sony-cd-player/
 │   ├── app.html
 │   ├── app.d.ts
 │   ├── routes/
+│   │   ├── +layout.ts              # ssr = false (SPA shell for both targets)
 │   │   ├── +layout.svelte
 │   │   ├── +page.svelte            # player shell — the whole app is one route
 │   │   ├── layout.css              # Tailwind + shadcn-svelte theme layer
@@ -96,8 +100,10 @@ sony-cd-player/
 ├── static/
 │   └── robots.txt
 ├── package.json
-├── vite.config.ts                  # deployed target
-├── vite.config.artifact.ts         # single-file target (Phase 7 — not created yet)
+├── vite.config.ts                  # deployed target (adapter-auto)
+├── vite.config.artifact.ts         # single-file target (adapter-static + inline)
+├── scripts/
+│   └── prune-artifact.mjs          # leave only build-artifact/index.html
 └── tsconfig.json
 ```
 
