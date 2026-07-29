@@ -88,10 +88,14 @@ export function metadataToTrack(id: string, data: ArchiveMetadata): Track | null
 	};
 }
 
-export async function fetchArchiveMetadata(id: string): Promise<ArchiveMetadata | null> {
+export async function fetchArchiveMetadata(
+	id: string,
+	timeoutMs = 3500
+): Promise<ArchiveMetadata | null> {
 	try {
 		const res = await fetch(`https://archive.org/metadata/${encodeURIComponent(id)}`, {
-			headers: { Accept: 'application/json' }
+			headers: { Accept: 'application/json' },
+			signal: AbortSignal.timeout(timeoutMs)
 		});
 		if (!res.ok) return null;
 		return (await res.json()) as ArchiveMetadata;
@@ -100,14 +104,97 @@ export async function fetchArchiveMetadata(id: string): Promise<ArchiveMetadata 
 	}
 }
 
-/** Resolve many identifiers in parallel; skip failures silently. */
-export async function resolveArchiveIds(ids: string[]): Promise<Track[]> {
-	const settled = await Promise.all(
-		ids.map(async (id) => {
-			const meta = await fetchArchiveMetadata(id);
-			if (!meta) return null;
-			return metadataToTrack(id, meta);
-		})
-	);
-	return settled.filter((t): t is Track => t != null);
+export type ResolveOptions = {
+	/** Max in-flight metadata requests (archive.org throttles wide fan-out). */
+	concurrency?: number;
+	/** Per-item fetch timeout in ms. */
+	timeoutMs?: number;
+};
+
+/** Resolve many identifiers with bounded concurrency; skip failures / timeouts silently. */
+export async function resolveArchiveIds(
+	ids: string[],
+	options: ResolveOptions = {}
+): Promise<Track[]> {
+	const concurrency = Math.max(1, options.concurrency ?? 4);
+	const timeoutMs = options.timeoutMs ?? 3500;
+	const tracks: Track[] = [];
+	let cursor = 0;
+
+	async function worker() {
+		while (cursor < ids.length) {
+			const id = ids[cursor++]!;
+			const meta = await fetchArchiveMetadata(id, timeoutMs);
+			if (!meta) continue;
+			const track = metadataToTrack(id, meta);
+			if (track) tracks.push(track);
+		}
+	}
+
+	const workers = Array.from({ length: Math.min(concurrency, ids.length) }, () => worker());
+	await Promise.all(workers);
+	/* Preserve input order for stable UI */
+	const byId = new Map(tracks.map((t) => [t.id, t]));
+	return ids.map((id) => byId.get(id)).filter((t): t is Track => t != null);
+}
+
+export type SearchHit = {
+	id: string;
+	title: string;
+	artist: string;
+};
+
+type SearchDoc = {
+	identifier?: string;
+	title?: string | string[];
+	creator?: string | string[];
+};
+
+/** Fast advancedsearch only — no per-item metadata. Caller resolves stream URLs separately. */
+export async function searchArchiveHits(
+	query: string,
+	rows = 8,
+	timeoutMs = 8000
+): Promise<SearchHit[]> {
+	const q = query.trim();
+	if (!q) return [];
+
+	const searchUrl = new URL('https://archive.org/advancedsearch.php');
+	searchUrl.searchParams.set('q', `${q} AND format:MP3 AND mediatype:audio`);
+	searchUrl.searchParams.append('fl[]', 'identifier');
+	searchUrl.searchParams.append('fl[]', 'title');
+	searchUrl.searchParams.append('fl[]', 'creator');
+	searchUrl.searchParams.set('output', 'json');
+	searchUrl.searchParams.set('rows', String(rows));
+	searchUrl.searchParams.set('page', '1');
+
+	const res = await fetch(searchUrl.toString(), {
+		headers: { Accept: 'application/json' },
+		signal: AbortSignal.timeout(timeoutMs)
+	});
+	if (!res.ok) throw new Error(`search failed (${res.status})`);
+
+	const data = (await res.json()) as { response?: { docs?: SearchDoc[] } };
+	const docs = data.response?.docs ?? [];
+	const seen = new Set<string>();
+	const hits: SearchHit[] = [];
+
+	for (const doc of docs) {
+		const id = doc.identifier;
+		if (!id || seen.has(id)) continue;
+		seen.add(id);
+		hits.push({
+			id,
+			title: asSingle(doc.title) || id,
+			artist: asSingle(doc.creator) || 'Unknown'
+		});
+	}
+	return hits;
+}
+
+/** Split an array into chunks of `size` (last chunk may be smaller). */
+export function chunkIds<T>(items: T[], size: number): T[][] {
+	const out: T[][] = [];
+	for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));
+	return out;
 }

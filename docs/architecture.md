@@ -135,13 +135,13 @@ The route that makes the meter work.
 
 ### `GET /api/search?q=<query>` — `src/routes/api/search/+server.ts`
 
-Wraps the advanced search endpoint, then resolves each hit through the same metadata → `Track[]` path as `/api/resolve` (so the client always gets streamable tracks, not bare identifiers):
+Fast advancedsearch only — returns `{ id, title, artist }[]` (no stream URLs). The client then resolves stream URLs in small batches via `/api/resolve` so the first playable tracks appear without waiting on every metadata fetch.
 
 ```
 https://archive.org/advancedsearch.php
   ?q={query}+AND+format:MP3+AND+mediatype:audio
   &fl[]=identifier&fl[]=title&fl[]=creator
-  &output=json&rows=15&page=1
+  &output=json&rows=8&page=1
 ```
 
 ---

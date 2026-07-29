@@ -1,9 +1,10 @@
 <script lang="ts">
-	import { searchTracks } from '$lib/api/client';
+	import { searchTracksProgressive } from '$lib/api/client';
 	import { queue } from '$lib/state/queue.svelte';
 	import { ui } from '$lib/state/ui.svelte';
 
-	/* No <form> per constraints — Enter key triggers search. */
+	/* No <form> per constraints — Enter key triggers search.
+	   Hits return fast; stream URLs resolve in small batches so results appear early. */
 
 	let query = $state('');
 	let busy = $state(false);
@@ -13,15 +14,19 @@
 		if (!q || busy) return;
 		busy = true;
 		ui.setSearching();
+		let added = 0;
+		let gotHits = false;
 		try {
-			const results = await searchTracks(q);
-			ui.clear();
-			if (results.length === 0) {
+			const totalResolved = await searchTracksProgressive(q, (tracks) => {
+				if (!gotHits) {
+					gotHits = true;
+					ui.clear();
+				}
+				added += queue.append(tracks);
+			});
+			if (!gotHits || totalResolved === 0 || added === 0) {
 				ui.setNoResults();
-				return;
 			}
-			const added = queue.append(results);
-			if (added === 0) ui.setNoResults();
 		} catch {
 			ui.setNoResults();
 		} finally {

@@ -4,6 +4,19 @@ Short entries after each build phase: what shipped, what's still open. Newest fi
 
 ---
 
+## 2026-07-28 — Search feels faster (progressive resolve)
+
+**What shipped:**
+
+- `/api/search` returns advancedsearch hits only (no N metadata waits). Client resolves stream URLs in batches of 3 via `/api/resolve` and appends as each batch lands — `SEARCHING` clears on the first batch.
+- Metadata fetches use a 3.5s timeout and concurrency 4 so one slow archive.org item can't stall the whole search.
+
+**What's still open:**
+
+- Phase 7: dual build + Vercel deploy.
+
+---
+
 ## 2026-07-28 — Docs synced to phases 1–6
 
 **What shipped:**
