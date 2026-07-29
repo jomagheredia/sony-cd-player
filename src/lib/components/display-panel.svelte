@@ -1,11 +1,12 @@
 <script lang="ts">
 	import PeakMeter from './peak-meter.svelte';
+	import { meter } from '$lib/audio/meter.svelte';
 	import { playback } from '$lib/state/playback.svelte';
 	import { queue } from '$lib/state/queue.svelte';
 	import { formatTime } from '$lib/format-time';
 
-	/* The display is a pure function of the playback state machine. Meter levels stay
-	   at zero until real AnalyserNode data arrives in phase 5 (after the CORS gate). */
+	/* Display is a pure function of playback + meter state. Meter: live while playing,
+	   frozen on pause, zero on stop/empty (driven from playback transitions). */
 
 	const state = $derived(playback.current);
 	const track = $derived('trackIndex' in state ? queue.tracks[state.trackIndex] : undefined);
@@ -37,6 +38,9 @@
 	const canSeek = $derived(
 		state.status === 'playing' || state.status === 'paused' || state.status === 'ready'
 	);
+
+	const levelL = $derived(meter.left);
+	const levelR = $derived(meter.right);
 
 	function onSeekClick(event: MouseEvent) {
 		if (!canSeek) return;
@@ -84,8 +88,8 @@
 	</div>
 
 	<div class="display-row display-row--meter">
-		<PeakMeter channel="L" level={0} />
-		<PeakMeter channel="R" level={0} />
+		<PeakMeter channel="L" level={levelL} />
+		<PeakMeter channel="R" level={levelR} />
 	</div>
 
 	<div class="display-row display-row--time">
