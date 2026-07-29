@@ -3,10 +3,12 @@
 	import { meter } from '$lib/audio/meter.svelte';
 	import { playback } from '$lib/state/playback.svelte';
 	import { queue } from '$lib/state/queue.svelte';
+	import { ui } from '$lib/state/ui.svelte';
 	import { formatTime } from '$lib/format-time';
 
-	/* Display is a pure function of playback + meter state. Meter: live while playing,
-	   frozen on pause, zero on stop/empty (driven from playback transitions). */
+	const MARQUEE_CHARS = 28;
+
+	/* Display is a pure function of playback + meter + ui flash state. */
 
 	const state = $derived(playback.current);
 	const track = $derived('trackIndex' in state ? queue.tracks[state.trackIndex] : undefined);
@@ -14,7 +16,7 @@
 		'trackIndex' in state ? String(state.trackIndex + 1).padStart(2, '0') : '--'
 	);
 
-	const badgeText = $derived(
+	const playbackBadge = $derived(
 		{
 			empty: 'NO DISC',
 			loading: 'LOAD',
@@ -24,6 +26,17 @@
 			error: 'DISC ERR'
 		}[state.status]
 	);
+
+	const flash = $derived(ui.flash);
+	const badgeText = $derived(
+		flash === 'searching' ? 'SEARCHING' : flash === 'no-results' ? 'NO RESULTS' : playbackBadge
+	);
+	const showLoadDots = $derived(
+		flash === 'searching' || (flash == null && state.status === 'loading')
+	);
+
+	const titleText = $derived(track?.title ?? '');
+	const useMarquee = $derived(titleText.length > MARQUEE_CHARS);
 
 	const elapsed = $derived('trackIndex' in state ? formatTime(playback.currentTime) : '--:--');
 	const totalSeconds = $derived(
@@ -73,18 +86,23 @@
 		<span class="track-number">TRACK {trackNumber}</span>
 		<span
 			class="status-badge"
-			class:blink-slow={state.status === 'empty'}
-			class:blink-thrice={state.status === 'error'}
+			class:blink-slow={flash == null && state.status === 'empty'}
+			class:blink-thrice={flash == null && state.status === 'error'}
 			aria-live="polite"
 		>
-			{badgeText}{#if state.status === 'loading'}<span class="dots" aria-hidden="true">
+			{badgeText}{#if showLoadDots}<span class="dots" aria-hidden="true">
 					<span>·</span><span>·</span><span>·</span>
 				</span>{/if}
 		</span>
 	</div>
 
 	<div class="display-row display-row--title">
-		<span class="track-title">{track?.title ?? ''}</span>
+		<div class="track-title" class:marquee={useMarquee}>
+			<span class="track-title-inner">{titleText}</span>
+			{#if useMarquee}
+				<span class="track-title-inner" aria-hidden="true">{titleText}</span>
+			{/if}
+		</div>
 	</div>
 
 	<div class="display-row display-row--meter">
@@ -206,9 +224,35 @@
 		font-size: 1rem;
 		white-space: nowrap;
 		overflow: hidden;
-		text-overflow: ellipsis;
 		max-width: 100%;
 		min-height: 1.5em;
+		width: 100%;
+	}
+
+	.track-title:not(.marquee) .track-title-inner {
+		display: block;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.track-title.marquee {
+		display: flex;
+		width: 100%;
+	}
+
+	.track-title.marquee .track-title-inner {
+		flex: 0 0 auto;
+		padding-right: 3em;
+		animation: title-marquee 14s linear infinite;
+	}
+
+	@keyframes title-marquee {
+		from {
+			transform: translateX(0);
+		}
+		to {
+			transform: translateX(-100%);
+		}
 	}
 
 	.display-row--meter {
@@ -260,7 +304,8 @@
 	@media (prefers-reduced-motion: reduce) {
 		.status-badge.blink-slow,
 		.status-badge.blink-thrice,
-		.dots span {
+		.dots span,
+		.track-title.marquee .track-title-inner {
 			animation: none;
 		}
 	}

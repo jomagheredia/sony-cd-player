@@ -190,11 +190,11 @@ Five archive.org identifiers loaded on mount so the player works on first open. 
 
 ```typescript
 const DEFAULT_IDS = [
-	'gd1977-05-08.sbd.hicks.4982.sbeok.shnf',
-	'MusOpen_Beethoven_Symphony_No_5',
-	'afrechot_nocturne_op9_no2',
-	'cd_guitar-music-by-heitor-villa-lobos_heitor-villa-lobos',
-	'PianoSonataNo14MoonlightBeethoven'
+	'nocturneineflatmajorop.9no.2',
+	'Ast0r-SoWhat',
+	'BlueRondoAlLaTurk-4GuitarArrangementrenderedMidi',
+	'beethoven-symphony-no-5',
+	'LudwigVanBeethovenMoonlightSonataAdagioSostenutogetTune.net'
 ];
 ```
 

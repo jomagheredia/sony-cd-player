@@ -1,5 +1,40 @@
 <script lang="ts">
-	/* No <form> per constraints — plain input, Enter-key handling wired in phase 6. */
+	import { searchTracks } from '$lib/api/client';
+	import { queue } from '$lib/state/queue.svelte';
+	import { ui } from '$lib/state/ui.svelte';
+
+	/* No <form> per constraints — Enter key triggers search. */
+
+	let query = $state('');
+	let busy = $state(false);
+
+	async function runSearch() {
+		const q = query.trim();
+		if (!q || busy) return;
+		busy = true;
+		ui.setSearching();
+		try {
+			const results = await searchTracks(q);
+			ui.clear();
+			if (results.length === 0) {
+				ui.setNoResults();
+				return;
+			}
+			const added = queue.append(results);
+			if (added === 0) ui.setNoResults();
+		} catch {
+			ui.setNoResults();
+		} finally {
+			busy = false;
+		}
+	}
+
+	function onKeydown(event: KeyboardEvent) {
+		if (event.key === 'Enter') {
+			event.preventDefault();
+			void runSearch();
+		}
+	}
 </script>
 
 <div class="search-bar">
@@ -8,6 +43,9 @@
 		type="text"
 		placeholder="SEARCH ARCHIVE.ORG"
 		aria-label="Search Internet Archive"
+		bind:value={query}
+		onkeydown={onKeydown}
+		disabled={busy}
 	/>
 </div>
 
@@ -25,6 +63,10 @@
 		font-family: 'Share Tech Mono', monospace;
 		font-size: 0.8rem;
 		padding: calc(var(--space) * 2) calc(var(--space) * 3);
+	}
+
+	.search-input:disabled {
+		opacity: 0.6;
 	}
 
 	.search-input::placeholder {

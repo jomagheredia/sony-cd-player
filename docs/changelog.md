@@ -4,6 +4,22 @@ Short entries after each build phase: what shipped, what's still open. Newest fi
 
 ---
 
+## 2026-07-28 — Phase 6: resolve, search, keyboard, marquee
+
+**What shipped:**
+
+- `GET /api/resolve` + `GET /api/search` — batch metadata / advanced search → normalized `Track[]` (shared helpers in `src/lib/api/archive.ts`). Dead ids skipped silently.
+- Client `resolveTracks` / `searchTracks` (proxy or direct for artifact). Player shell loads `DEFAULT_IDS` on mount; search appends unique hits. Display flashes `SEARCHING ···` / `NO RESULTS` (2s).
+- Keyboard shortcuts on the chassis (Space, ←/→, N/P, S/R, ↑/↓); ignored while typing in the search field. Shuffle randomizes next/prev when enabled.
+- Title marquee for titles over 28 characters; frozen under `prefers-reduced-motion`.
+- Verified: default queue resolves to 5 tracks, play works, Space pauses, search appends (5 → 20 for “erik satie gymnopedie”).
+
+**What's still open:**
+
+- Phase 7 next: dual build (`adapter-static` + `vite-plugin-singlefile`), Vercel deploy, portfolio screenshot.
+
+---
+
 ## 2026-07-27 — Phase 5: live peak meter
 
 **What shipped:**
