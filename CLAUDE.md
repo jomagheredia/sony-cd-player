@@ -10,7 +10,7 @@ This file is read automatically at the start of every Claude Code session in thi
 2. **`docs/architecture.md`** — file structure, SvelteKit routing convention for the three server endpoints, dual-target build strategy, the `Track` type, and the playback state machine. Source of truth for structural questions.
 3. **`cdp-xa7es-prompt.md`** (root) — design tokens, layout, component behavior (peak meter, display panel, transport controls, track list, search), keyboard shortcuts, branding, constraints. Source of truth for visual/behavioral questions.
 4. **`docs/prd.md`** — why this exists, who it's for, what "done" looks like. Read when scope or priority is unclear, not for implementation detail.
-5. **`docs/changelog.md`** — currently empty. Append a short entry after completing each build phase (what shipped, what's still open) so future sessions can pick up context without re-deriving it. Check it first at session start once it has entries.
+5. **`docs/changelog.md`** — append a short entry after completing each build phase (what shipped, what's still open) so future sessions can pick up context without re-deriving it. Check it first at session start.
 
 ---
 
@@ -20,7 +20,7 @@ This file is read automatically at the start of every Claude Code session in thi
 - **"Where does X live / how is it wired?"** → `docs/architecture.md`
 - **"How should I write this / what's the convention?"** → `ai-context.md`
 - **"Why are we building this this way?"** → `docs/prd.md`
-- **"What's already been built?"** → `docs/changelog.md` (empty until the first phase wraps)
+- **"What's already been built?"** → `docs/changelog.md`
 
 ---
 

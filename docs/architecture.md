@@ -49,10 +49,11 @@ The client detects mode at runtime via `import.meta.env.VITE_USE_PROXY`. In arti
 sony-cd-player/
 ├── docs/
 │   ├── prd.md
-│   ├── ai-context.md
 │   ├── architecture.md
-│   ├── cdp-xa7es-prompt.md
 │   └── changelog.md
+├── ai-context.md                   # conventions + build order (root)
+├── cdp-xa7es-prompt.md             # visual/behavioral spec (root)
+├── CLAUDE.md                       # session index
 ├── src/
 │   ├── app.html
 │   ├── app.d.ts
@@ -66,26 +67,29 @@ sony-cd-player/
 │   │       ├── stream/
 │   │       │   └── +server.ts      # CORS-clean audio proxy (forwards Range headers)
 │   │       └── search/
-│   │           └── +server.ts      # wraps archive.org advanced search
+│   │           └── +server.ts      # wraps archive.org advanced search → Track[]
 │   └── lib/
 │       ├── styles/
-│       │   └── tokens.css          # CDP-XA7ES OKLCH tokens (chassis/display/controls) — separate from the shadcn theme in layout.css
+│       │   └── tokens.css          # CDP-XA7ES OKLCH tokens (chassis/display/controls)
 │       ├── components/
 │       │   ├── ui/                 # shadcn-svelte primitives (existing alias, style: lyra)
-│       │   ├── player-shell.svelte
+│       │   ├── player-shell.svelte # mount resolve + keyboard shortcuts
 │       │   ├── display-panel.svelte
 │       │   ├── peak-meter.svelte   # signature element
 │       │   ├── transport-controls.svelte
 │       │   ├── track-list.svelte
 │       │   └── search-bar.svelte
 │       ├── audio/
-│       │   ├── engine.ts           # <audio> element + Web Audio graph
-│       │   └── metering.ts         # AnalyserNode → per-channel peak + RMS
+│       │   ├── engine.ts           # <audio> + Web Audio graph (splitter → L/R analysers)
+│       │   ├── metering.ts         # peak/RMS → segments + peak-hold math
+│       │   └── meter.svelte.ts     # rAF loop → reactive L/R display levels
 │       ├── state/
 │       │   ├── playback.svelte.ts  # typed playback state machine, runes-based
-│       │   └── queue.svelte.ts     # queue/shuffle/repeat/volume, runes-based
+│       │   ├── queue.svelte.ts     # queue/shuffle/repeat/volume, runes-based
+│       │   └── ui.svelte.ts        # SEARCHING / NO RESULTS display flashes
 │       ├── api/
-│       │   ├── client.ts           # proxy-aware fetch layer
+│       │   ├── archive.ts          # shared IA metadata → Track helpers + DEFAULT_IDS
+│       │   ├── client.ts           # proxy-aware resolve/search/stream helpers
 │       │   └── types.ts            # normalized Track type
 │       ├── utils.ts                # existing shadcn cn() helper
 │       └── format-time.ts
@@ -93,17 +97,17 @@ sony-cd-player/
 │   └── robots.txt
 ├── package.json
 ├── vite.config.ts                  # deployed target
-├── vite.config.artifact.ts         # single-file target
+├── vite.config.artifact.ts         # single-file target (Phase 7 — not created yet)
 └── tsconfig.json
 ```
 
 Naming: kebab-case for all files, CSS classes, and branches. Code comments in English only. Components are `.svelte` files (PascalCase export names are not applicable — SvelteKit resolves components by filename, which stays kebab-case per project convention).
 
-**State**: no hand-rolled pub/sub. `playback.svelte.ts` and `queue.svelte.ts` are `.svelte.ts` modules that hold `$state` at module scope — Svelte 5's idiomatic pattern for state shared across components without a framework store library. The display panel and transport controls read/write this state directly; it's exported as plain objects/functions, not wrapped in a custom event emitter.
+**State**: no hand-rolled pub/sub. `playback.svelte.ts`, `queue.svelte.ts`, `ui.svelte.ts`, and `meter.svelte.ts` hold `$state` at module scope — Svelte 5's idiomatic pattern for shared state without a store library. The display panel and transport controls read/write this state directly.
 
 **Styling split**: `src/routes/layout.css` is the shadcn-svelte theme (light/dark tokens, Tailwind layers, JetBrains Mono as `--font-mono`) — leave it as shadcn manages it. `src/lib/styles/tokens.css` is the CDP-XA7ES chassis/display/control tokens from `cdp-xa7es-prompt.md` (OKLCH, amber phosphor, etc.), imported by the player shell. The player is dark-only per the PRD, so it doesn't consume shadcn's `.dark` toggle — it uses its own fixed token set regardless of that class.
 
-**Typography note for a later pass**: `cdp-xa7es-prompt.md` specifies `'Share Tech Mono'` (Google Fonts) for display characters; the scaffold currently ships `@fontsource-variable/jetbrains-mono` as the global mono font. That's a visual-spec decision (add Share Tech Mono alongside JetBrains Mono, or reconcile the two), not a structural one — leaving it for whoever implements the display panel, flagging it here so it isn't missed.
+**Typography**: display/VFD characters use `'Share Tech Mono'` (loaded via Google Fonts in the player shell). JetBrains Mono remains on the shadcn theme layer only and is not used by the chassis.
 
 ---
 
@@ -131,7 +135,7 @@ The route that makes the meter work.
 
 ### `GET /api/search?q=<query>` — `src/routes/api/search/+server.ts`
 
-Wraps the advanced search endpoint, keeps response shape identical to `/api/resolve`:
+Wraps the advanced search endpoint, then resolves each hit through the same metadata → `Track[]` path as `/api/resolve` (so the client always gets streamable tracks, not bare identifiers):
 
 ```
 https://archive.org/advancedsearch.php

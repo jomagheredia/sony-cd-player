@@ -4,6 +4,18 @@ Short entries after each build phase: what shipped, what's still open. Newest fi
 
 ---
 
+## 2026-07-28 — Docs synced to phases 1–6
+
+**What shipped:**
+
+- Updated `CLAUDE.md`, `ai-context.md`, and `docs/architecture.md` so session orientation matches the repo: SvelteKit routes (not bare `/api/*.ts`), file tree includes `archive.ts` / `meter.svelte.ts` / `ui.svelte.ts`, Share Tech Mono marked resolved, build order notes phases 1–6 done / phase 7 next.
+
+**What's still open:**
+
+- Phase 7: dual build + Vercel deploy (unchanged).
+
+---
+
 ## 2026-07-28 — Phase 6: resolve, search, keyboard, marquee
 
 **What shipped:**
