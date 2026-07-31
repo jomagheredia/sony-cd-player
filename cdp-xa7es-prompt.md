@@ -14,64 +14,104 @@ The signature element is a **segmented amber peak-level meter** driven by real a
 
 ## Design tokens — OKLCH only, no HEX
 
-```css
-:root {
-	/* Chassis — anodized aluminum, neutral-cool */
-	--chassis-bg: oklch(15% 0.005 260);
-	--chassis-panel: oklch(19% 0.006 260);
-	--chassis-edge: oklch(28% 0.008 260);
+The live token set is `src/lib/styles/tokens.css` — read that file, not this block, when you need an exact
+value. The shape of the system:
 
-	/* Display cavity — warm-dark, amber bleeds into the black */
-	--display-bg: oklch(11% 0.015 60);
-	--display-amber: oklch(82% 0.16 72); /* Active phosphor */
-	--display-amber-mid: oklch(62% 0.13 70); /* Meter mid-range */
-	--display-dim: oklch(45% 0.09 68); /* Inactive segment */
-	--display-peak: oklch(70% 0.2 32); /* Peak-hold / clip */
-
-	/* Controls */
-	--btn-surface: oklch(23% 0.006 260);
-	--btn-border: oklch(32% 0.008 260);
-	--btn-text: oklch(65% 0.012 260);
-	--btn-active: oklch(82% 0.16 72);
-
-	/* Silkscreen */
-	--text-label: oklch(48% 0.01 260);
-	--text-secondary: oklch(60% 0.012 260);
-
-	--radius: 2px;
-	--space: 4px;
-}
-```
+- **Chassis** (`--chassis-void`, `-bg`, `-panel`, `-panel-hi`, `-edge`, `-groove`) — cool-neutral anodized
+  aluminum at hue 260. `--chassis-void` is the room behind the machine; `--chassis-panel-hi` is the top bevel
+  catching light.
+- **Gold** (`--gold`, `--gold-dim`) — the accent block beside POWER and ES-era badging. The only warm thing on
+  the chassis.
+- **Cavity** (`--display-bg`, `--display-bg-deep`, `--segment-off`) — near-black at hue ~58. `--segment-off` is
+  deliberately dark: an unlit VFD segment is _structure, not light_. If a silent meter looks lit, this value is
+  wrong.
+- **Phosphor** (`--phosphor-bright`, `--phosphor`, `--phosphor-mid`, `--phosphor-low`, `--phosphor-peak`) — the
+  amber emission ramp, plus red-orange for over-level segments.
+- **Silkscreen** (`--text-label`, `--text-secondary`) — printed on metal, never glowing. `--text-label` sits at
+  62% lightness because that is the floor that clears WCAG AA for 10px labels on the faceplate.
 
 Every color in every component derives from these. No raw values in component files.
 
+Two deliberate hue families, as on the machine: the chassis is cool-neutral, the cavity is warm amber. Nothing
+in the cavity is neutral; nothing on the chassis is warm except the gold.
+
 ### Typography
 
-- `'Share Tech Mono'` (Google Fonts) — display characters only: track number, time, title marquee
-- `system-ui, sans-serif` — everything else. Never `-apple-system` or `BlinkMacSystemFont`.
+Three families, each with a job:
+
+- `'DSEG7 Classic'` (`@fontsource/dseg7-classic`, self-hosted so it inlines into the artifact build) — true
+  seven-segment numerals for the **large** readouts only: elapsed time and track number. It is not legible
+  below ~20px, so nothing small uses it.
+- `'Share Tech Mono'` (Google Fonts) — everything else inside the cavity: title, status badge,
+  indicator strip, dB scale, total time.
+- `system-ui, sans-serif` — chassis silkscreen and track list. Never `-apple-system` or `BlinkMacSystemFont`.
+
+Scale is five fixed steps at roughly a 1.3 ratio (`--type-silk` 10px → `--type-sm` 13 → `--type-md` 17 →
+`--type-lg` 22), plus one fluid step for the hero time readout (`--type-hero`, `clamp(2rem, 4.2vw, 3rem)`). The
+cavity is a hero object rather than a text column, which is why that one step is fluid.
 
 ---
 
 ## Layout
 
-Desktop two-column, mobile stacked:
+The machine is a viewport-filling instrument: `.stage` centers it in a darker surround (`--chassis-void`) so the
+faceplate sits _in_ the page rather than on it. Max width 1200px, wide-and-short like the real component.
 
 ```
-┌──────────────────────────────────────────────────────────┐
-│  SONY                                     CDP-XA7ES      │
-│ ┌───────────────────────────┐  ┌──────────────────────┐  │
-│ │ TRACK 01           PLAY   │  │ TRACK LIST           │  │
-│ │ Blue Rondo à la Turk      │  │ ▸ 01  Blue Rondo...  │  │
-│ │ ▁▂▃▅▆▇█▇▆▅▃▂▁ L          │  │   02  So What        │  │
-│ │ ▁▂▃▄▅▆▇▆▅▄▃▂▁ R          │  │   03  Nocturne       │  │
-│ │ 02:47 ────────●──── 05:12 │  │ ──────────────────── │  │
-│ └───────────────────────────┘  │ [ SEARCH ARCHIVE   ] │  │
-│ ┌───────────────────────────┐  └──────────────────────┘  │
-│ │  |◄◄   ►   ■   ►►|   ⇌ ↺  │                            │
-│ └───────────────────────────┘                            │
-│              COMPACT DISC DIGITAL AUDIO                  │
-└──────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────┐
+│  SONY              XA7ES                              DIGITAL OUT  │
+│                CURRENT PULSE D/A CONVERT SYSTEM                    │
+│ ┌──────────────────────────────────┐ ┌───────────────────────────┐ │
+│ │ SHUFFLE REPEAT REPEAT 1     PLAY │ │ TRACK LIST          05 TR │ │
+│ │ TRACK 01                         │ │ ▸ 01 Nocturne...    04:31 │ │
+│ │ Nocturne in E Flat Major, Op. 9  │ │   02 So What        09:24 │ │
+│ │ dB  -40   -30   -20  -10  -3     │ │   03 Blue Rondo...  04:09 │ │
+│ │ L ▮▮▮▮▮▮▮▮▯▯▯▯▯▯                 │ │ ───────────────────────── │ │
+│ │ R ▮▮▮▮▮▮▯▯▯▯▯▯▯▯                 │ │ [SEARCH ARCHIVE.ORG][SRCH]│ │
+│ │ 02:47 ──────●──────────── 05:12  │ └───────────────────────────┘ │
+│ └──────────────────────────────────┘                               │
+│ ┌──┐▪  LINE OUT LEVEL                                              │
+│ │⏻ │   ───────●────      |◄◄  ►  ■  ►►|          ⇌  ↺              │
+│ └──┘                                                               │
+│ POWER                                                              │
+│ COMPACT DISC DIGITAL AUDIO         COMPACT DISC PLAYER  CDP-XA7ES  │
+└────────────────────────────────────────────────────────────────────┘
 ```
+
+The deck is a two-column grid using `minmax(0, 1.35fr) minmax(0, 1fr)`. The `minmax(0, …)` is load-bearing:
+archive.org titles run past 100 characters and without it a long title steals width from the display cavity and
+crushes it. Single column below 900px; the control band stacks below 720px; edge-to-edge below 420px.
+
+POWER sits at the far left and the transport cluster at the right, as on the faceplate. The LINE OUT level
+control fills the band between them — volume was always adjustable with `↑`/`↓` but had no visible state.
+
+---
+
+## Power-on ceremony
+
+The faceplate starts in standby: chassis present and legible, cavity fully black, every control except POWER
+genuinely `disabled`. Pressing POWER runs the warm-up. State lives in `src/lib/state/power.svelte.ts`.
+
+| Phase       | Window    | What happens                                                                                                             |
+| ----------- | --------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `standby`   | —         | Cavity black, `--segment-off-live: transparent` so unlit segments vanish, deck at 50% opacity.                           |
+| `energize`  | 0–180ms   | Filament bloom overshoots and settles; no glyphs yet.                                                                    |
+| `self-test` | 180–880ms | Every segment strikes L→R, 22ms apart, R offset 70ms. Glyphs read `TRACK 88`, `88:88`, all indicators lit, badge `TEST`. |
+| `on`        | 880ms+    | Real values. Controls become live.                                                                                       |
+
+Then the TOC-read beat: the display holds `LOAD ···` while the queue resolve is actually in flight, and the track
+list shows `READING TOC`. That beat reflects a real fetch — it is not a timed fake, and it must not become one.
+
+Two constraints that are easy to break:
+
+- **POWER is the audio unlock.** Browsers only honour `AudioContext.resume()` inside a user gesture, so
+  `engine.unlock()` is called from the POWER handler. This is why the first play is instant. Do not move it.
+- **The bloom settles low** (opacity 0.18). It overshoots to 0.9 on the strike, but if it rests high the cavity
+  stops reading as black and the phosphor stops reading as the only light in it.
+
+Replay is once per session, tracked in `sessionStorage` under `xa7es-power`. Powering the unit off and on again
+arms the full ceremony. `prefers-reduced-motion` collapses the whole thing to a 200ms fade with no sweep and no
+flicker.
 
 ---
 
@@ -81,14 +121,31 @@ Period-correct choice. Sony ES gear used segmented peak meters, not spectrum ana
 
 **Spec:**
 
-- Two horizontal rows, L and R, 14 segments each
-- Segment gradient by position: `--display-dim` (off) → `--display-amber` (1–10) → `--display-amber-mid` (11–12) → `--display-peak` (13–14)
+- Two horizontal rows, L and R, 14 segments each, laid out on a 14-column grid so the dB scale above can align
+  to exact segment boundaries
+- Unlit segment: `--segment-off`. Lit intensity **ascends** with level — `--phosphor` (1–9) →
+  `--phosphor-bright` (10–11) → `--phosphor-peak` (12–14). Heat rising toward the top is what makes it read as
+  an instrument; an earlier draft dipped to a _darker_ amber at 11–12, which read as a dead spot.
+- A dB scale sits above the rows, marked at the segment each threshold actually maps to given the −48…−3 dB
+  window in `metering.ts` (−40 at 3, −30 at 6, −20 at 9, −10 at 12, −3 at 14). If that window changes, these
+  marks move. A scale that lies is worse than no scale.
 - Segments are hard-edged rectangles, 3px gap, no rounding, no glow on individual segments
 - **Peak-hold**: highest segment reached stays lit for 1200ms, then decays one segment per 80ms
 - Driven by `AnalyserNode.getByteTimeDomainData()` → per-channel RMS and instantaneous peak, at 60fps via `requestAnimationFrame`
 - Use a `ChannelSplitterNode` to get true L/R separation, not a mono average
 
-**Fallback (artifact mode, when CORS blocks analysis):** synthesize a plausible envelope from playback position with light randomness. Never show a dead meter — a dead meter reads as broken, not as honest.
+**Fallback (artifact mode, when CORS blocks analysis):** synthesize a plausible envelope from playback position
+with light randomness. Never show a dead meter — a dead meter reads as broken, not as honest. But a meter that
+merely _moves_ is not enough either: a bar parked at 10–12 of 14 with 2 segments of jitter still reads as
+decoration. **Shape the envelope in the segment domain, not in amplitude.** The −48…−3 dB window spans 14
+segments, so each segment is ~3.2 dB and an amplitude curve has to swing ~20× to walk the scale; shaping
+amplitude by eye reliably produces a parked bar. `simulateEnvelope` layers phrase (slow swell), bar, transient,
+flutter and noise, and returns segments directly.
+
+Calibrate against the **displayed** value, not the raw one — peak-hold lifts the visible floor toward the recent
+maximum, so raw range always overstates what a viewer sees. Target: full 5–14 travel, mass at 10–12, top segment
+lit no more than ~2% of the time so clip still means something. Verify by sampling the built artifact in a
+browser, not just by reading the function.
 
 **Verification gate:** before styling the meter, `console.log` the analyser output. If every value is exactly 128, the audio graph is silent and you are debugging CORS, not CSS. Fix that first — see `architecture.md` for the `/api/stream` proxy that solves this.
 
@@ -100,14 +157,25 @@ Simulated VFD cavity: `box-shadow: inset 0 0 24px oklch(0% 0 0 / 0.85), 0 0 10px
 
 Rows:
 
-1. `TRACK [nn]` large left — status badge right
-2. Track title, `'Share Tech Mono'` — marquee scroll if over 28 characters
-3. Peak meter, L over R
-4. Elapsed left — seek bar center (2px, clickable) — total right
+1. Indicator strip: `SHUFFLE` / `REPEAT` / `REPEAT 1` left, status badge right. The indicators are lit/unlit
+   silkscreen driven by queue state — the period-correct place for mode state. They are `aria-hidden`; the
+   transport buttons carry `aria-pressed` so assistive tech is told once, not twice.
+2. `TRACK` silkscreen label + track number in `'DSEG7 Classic'`
+3. Track title, `'Share Tech Mono'` — scrolls only when it overruns the cavity, and only by the measured
+   overflow: dwell, walk to the end at ~38 px/s, dwell, snap back. One string on screen at all times; never a
+   two-copy seamless loop, which reads as garbled text rather than a title. Clipped, not ellipsized — a hard
+   edge at the cavity boundary is the hardware behavior.
+4. dB scale, then peak meter L over R
+5. Elapsed time as the hero readout (`--type-hero`, DSEG7) — seek bar (2px, clickable) with the total stacked
+   beneath it, right-aligned
+
+The elapsed digits are large but sit at `--phosphor-mid`, one step below the lit segments. Size draws the eye,
+but the meter keeps it because the meter is brighter and it is the only thing moving. Do not brighten the digits
+to match the segments.
 
 Add a scanline overlay across the whole cavity: `repeating-linear-gradient` at 3px intervals, `oklch(0% 0 0 / 0.18)`, `pointer-events: none`.
 
-Status badge states — display is a pure function of the playback state machine (see `architecture.md`):
+Status badge states — display is a pure function of power + the playback state machine (see `architecture.md`):
 
 | State     | Badge      | Behavior                   |
 | --------- | ---------- | -------------------------- |
@@ -120,18 +188,26 @@ Status badge states — display is a pure function of the playback state machine
 
 ---
 
-## Transport controls
+## Controls
 
 Rectangular, `border-radius: var(--radius)`, flat surface, 1px border. `transform: scale(0.96)` on `:active` with 80ms spring-back. Toggled state uses `--btn-active` for text and border.
 
-| Control    | Glyph      | Behavior                |
-| ---------- | ---------- | ----------------------- |
-| Previous   | `          | ◄◄`                     | Previous track, or seek to 0 if past 3s |
-| Play/Pause | `►` / `❙❙` | Toggle                  |
-| Stop       | `■`        | Stop and reset position |
-| Next       | `►►        | `                       | Advance queue                           |
-| Shuffle    | `⇌`        | Toggle                  |
-| Repeat     | `↺`        | Cycle off → track → all |
+Every control except POWER is genuinely `disabled` until `power.ready` — dimmed _and_ inert, so keyboard and
+assistive tech agree with what the eye sees. The global keydown handler returns early for the same reason.
+
+Hierarchy: POWER has the lightest face on the faceplate (in standby it is the only live control). Play is wider
+than its neighbours with brighter text. Mode keys are the smallest. Not every key is primary.
+
+| Control        | Glyph      | Behavior                                                                                           |
+| -------------- | ---------- | -------------------------------------------------------------------------------------------------- |
+| Power          | `⏻`        | Toggle standby ⇄ on. Runs the ceremony, unlocks audio, stops playback on off. Amber pilot when on. |
+| Line out level | —          | Horizontal fader, rectangular cap, 0–100%. Mirrors the `↑`/`↓` shortcuts.                          |
+| Previous       | `          | ◄◄`                                                                                                | Previous track, or seek to 0 if past 3s |
+| Play/Pause     | `►` / `❙❙` | Toggle                                                                                             |
+| Stop           | `■`        | Stop and reset position                                                                            |
+| Next           | `►►        | `                                                                                                  | Advance queue                           |
+| Shuffle        | `⇌`        | Toggle                                                                                             |
+| Repeat         | `↺`        | Cycle off → track → all                                                                            |
 
 Geometric Unicode only. No emoji.
 
@@ -139,27 +215,37 @@ Geometric Unicode only. No emoji.
 
 ## Track list
 
-Scrollable panel, max-height 280px, custom scrollbar (2px, amber).
+A recessed well in the chassis (`--chassis-groove` with an inset shadow), not a card. Header carries the panel
+label and a track count (`05 TR`). Max-height 232px, min-height 168px so the panel does not collapse when empty,
+2px gold scrollbar.
 
 Each row:
 
 ```
-[nn]  Title — Artist                           [mm:ss]
+▸  [nn]  Title   Artist                          [mm:ss]
 ```
 
-- Active track: left accent bar in `--display-amber`, text brightens
-- Hover: subtle bg lift
-- Click: load + play immediately
+- Active track: `▸` caret in the index column plus brightened text and a warm background tint. **Not** a left
+  accent bar — a coloured `border-left` wider than 1px is the single most overused "design touch" in dashboard
+  UI and it never reads as intentional. The caret is also what the layout sketch always showed.
+- Title and artist are separate spans that can _both_ shrink and ellipsize. Real archive.org rows run past 100
+  characters in the title alone, with an equally long artist string after it.
+- Odd rows carry a faint background so long lists stay scannable
+- Hover: subtle bg lift. Click: load + play immediately
+- Empty: `NO DISC` + `Search the archive below to load tracks.` While the initial resolve is in flight:
+  `READING TOC` + what it is doing. The panel teaches the interface rather than sitting blank.
 
 ---
 
 ## Search
 
-Single input at the bottom of the track list panel.
+Input plus a `SEARCH` key at the bottom of the track list panel.
 
 - Placeholder: `SEARCH ARCHIVE.ORG`
-- Font: `'Share Tech Mono'`, amber text, dark bg, 1px amber border
-- On Enter (or search button): calls `/api/search` (see `architecture.md`)
+- Font: `'Share Tech Mono'`, amber text, recessed dark field, neutral border that warms on focus (an always-on
+  amber border made the field compete with the cavity)
+- The key is disabled until there is a query, and reads `BUSY` during a fetch
+- On Enter (or the search key): calls `/api/search` (see `architecture.md`)
 - Append results to track list (don't replace existing queue)
 - Show `SEARCHING ···` in display during fetch
 - On empty results: show `NO RESULTS` in display for 2s, then restore current state
@@ -196,7 +282,8 @@ Nothing else.
 - OKLCH only, no HEX or HSL in any component
 - `system-ui` stacks, never `-apple-system`
 - kebab-case throughout; English code comments
-- `prefers-reduced-motion`: freeze marquee, disable transitions, hold meter at RMS instead of animating peaks
+- `prefers-reduced-motion`: skip the self-test and collapse warm-up to a fade, freeze the title scroll, disable
+  transitions, hold meter at RMS instead of animating peaks
 - WCAG AA contrast on all interactive elements; visible keyboard focus
 - Responsive to 360px — single column below 600px
 - Dark only
@@ -206,8 +293,12 @@ Nothing else.
 - No rounded or pill buttons
 - No card-style track rows, padding above 8px
 - No skeleton loaders — the display panel _is_ the loading state
-- No drop shadows on buttons; inset only
-- No gradient backgrounds on the chassis
+- No drop shadows on buttons; inset only. (The machine itself casts one soft shadow onto the surround — that
+  grounds the unit in the room and is not the same thing as shadowed chrome.)
+- No decorative gradient backgrounds on the chassis. The 1px anodized grain overlay at 1.2% alpha is a
+  _material_, not a wash; if it ever becomes visible as a gradient, it has gone too far.
+- No coloured `border-left`/`border-right` accent stripes wider than 1px on rows, panels, or callouts
+- No glow on individual meter segments. The cavity-wide filament bloom is the only emission effect.
 - No spectrum analyser in place of the peak meter — wrong era
 
 ---

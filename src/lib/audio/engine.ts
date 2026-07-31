@@ -144,6 +144,24 @@ function load(url: string) {
 	el.addEventListener('canplay', onCanPlay);
 }
 
+/**
+ * Create and resume the AudioContext from inside a user gesture (the POWER key).
+ * Browsers only honour resume() during a gesture, so doing it at power-on means the
+ * first play() never has to fight autoplay policy. No-op in artifact mode, where the
+ * graph would be tainted without the CORS proxy.
+ */
+async function unlock() {
+	if (typeof window === 'undefined' || !useProxy()) return;
+	try {
+		ensureGraph();
+		if (audioCtx?.state === 'suspended') {
+			await audioCtx.resume();
+		}
+	} catch {
+		/* Non-fatal — play() resumes again if this was blocked. */
+	}
+}
+
 async function play() {
 	const el = getAudio();
 	intentionalPause = false;
@@ -203,6 +221,7 @@ function getAnalysers(): AnalyserPair | null {
 
 export const engine = {
 	connect,
+	unlock,
 	load,
 	play,
 	pause,
