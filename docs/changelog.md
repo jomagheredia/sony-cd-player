@@ -4,6 +4,29 @@ Short entries after each build phase: what shipped, what's still open. Newest fi
 
 ---
 
+## 2026-07-31 — Production deploy prep
+
+**What shipped:**
+
+- Merged phases 6–7 into `main`: resolve/search APIs, keyboard shortcuts, title marquee, dual build (`npm run build:artifact`).
+- Pinned `@sveltejs/adapter-vercel` in [`vite.config.ts`](../vite.config.ts) for reliable Vercel builds.
+- Pre-deploy verification passed locally: `check`, `lint`, `build`, `build:artifact`; preview smoke test confirmed `/api/resolve`, `/api/search`, and `/api/stream` (CORS `*` headers).
+- Pushed to [github.com/jomagheredia/sony-cd-player](https://github.com/jomagheredia/sony-cd-player) on `main`.
+- Updated [`README.md`](../README.md) with Vercel import steps.
+
+**Production URL:** _Pending — import the repo in the [Vercel dashboard](https://vercel.com/new) (GitHub integration). No env vars required._
+
+**Post-deploy checklist (run on live URL once deployed):**
+
+- CORS gate console log shows `PASS`; meter animates during playback
+- Play / pause / seek / prev / next work
+- Search returns tracks progressively
+- Capture portfolio screenshot (meter lit during playback)
+
+**Artifact (separate from Vercel):** `npm run build:artifact` → `build-artifact/index.html` for portfolio drop-in.
+
+---
+
 ## 2026-07-28 — Phase 7: dual build target
 
 **What shipped:**
