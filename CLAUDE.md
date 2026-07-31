@@ -41,12 +41,15 @@ SvelteKit. Two build targets — a portable single-file HTML artifact and a Verc
 ## Design Context
 
 ### Users
+
 Recruiters and portfolio reviewers evaluating Design Engineer craft — people who can tell real signal-driven UI from decoration. They encounter this as a short, intentional study, not a daily music app. The job: prove a hardware-grade faceplate can be wired to live Web Audio analysis (proxy architecture + dual build), and that the meter is an instrument, not animation.
 
 ### Brand Personality
+
 **Refined · Precise · Timeless.** Voice is quiet and technical — silkscreen labels, VFD status, no conversational chrome. Emotional arc on first play: **ceremonial** (power-on / faceplate presence) → **comforting** (familiar ES-era controls and amber phosphor) → **immersion** (live meter tracking the music). Evoke confidence in craft and period authenticity, never playfulness or product-marketing energy.
 
 ### Aesthetic Direction
+
 Tribute to the Sony CDP-XA7ES (1995 Japanese high-end CD transport), adapted for a browser — specs are the **baseline**, not a pixel prison. Reference 90s high-end audio gear: anodized aluminum, amber VFD cavities, segmented peak meters, rectangular transport keys, refined materials (not cheap consumer plastics or glossy modern hi-fi UI). Dark theme only.
 
 **Anti-references:** default AI-slop interfaces; Technics/Pioneer green meters; spectrum analysers; Spotify-like players; cards, pills, soft drop shadows, glow-on-segments; light mode; rounded consumer chrome.
@@ -54,8 +57,9 @@ Tribute to the Sony CDP-XA7ES (1995 Japanese high-end CD transport), adapted for
 **Tokens & type:** OKLCH palette from the chassis/display system stays the source of truth (amber phosphor, cool-neutral aluminum). `Share Tech Mono` is a strong default for VFD/display characters — other mono faces may be tested if they read closer to real XA7ES display typography; body/silkscreen stays `system-ui` stacks. Hardware silkscreen strings (`TRACK`, `PLAY`, `NO DISC`, etc.) stay English as on the machine.
 
 ### Design Principles
+
 1. **Meter first** — everything else stays quiet so the segmented amber peak meter carries the page; it must feel like an instrument driven by real (or honest artifact-fallback) signal.
 2. **Hardware grammar, browser craft** — keep ES-era language (rectangular controls, hard segment edges, inset display cavity, amber not green) while adapting layout, hit targets, and motion for a digital interface.
 3. **Refined materials** — anodized metal, warm-dark cavity, phosphor that bleeds into black; never cheap plastic, glassmorphism, or decorative gradients on the chassis.
-4. **Restraint over novelty** — fewer elements, sharper hierarchy; no cards, pills, skeleton loaders, or marketing chrome. The display panel *is* the loading/error state.
+4. **Restraint over novelty** — fewer elements, sharper hierarchy; no cards, pills, skeleton loaders, or marketing chrome. The display panel _is_ the loading/error state.
 5. **Honest systems** — deployed build: real `AnalyserNode` data only; artifact build may synthesize envelope. Prefer `prefers-reduced-motion` and WCAG AA on interactive surfaces without diluting the tribute.

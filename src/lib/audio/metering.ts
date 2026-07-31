@@ -70,7 +70,10 @@ export function amplitudeToSegments(norm: number): number {
 }
 
 /** Instantaneous bar level: louder of RMS and peak (peak meters should react to transients). */
-export function levelsFromAnalyser(analyser: AnalyserNode, buffer: Uint8Array<ArrayBuffer>): number {
+export function levelsFromAnalyser(
+	analyser: AnalyserNode,
+	buffer: Uint8Array<ArrayBuffer>
+): number {
 	analyser.getByteTimeDomainData(buffer);
 	const { peak, rms } = measureTimeDomain(buffer);
 	return Math.max(amplitudeToSegments(rms), amplitudeToSegments(peak));

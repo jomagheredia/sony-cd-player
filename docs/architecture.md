@@ -10,10 +10,10 @@ This is a **SvelteKit** project (Svelte 5, runes mode forced project-wide — se
 
 Two targets, one SvelteKit codebase, switched by **adapter**, not by framework:
 
-| Target     | Adapter                                                                     | Purpose                                                                      |
-| ---------- | --------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| `deployed` | `@sveltejs/adapter-auto` (resolves to `@sveltejs/adapter-vercel` on Vercel) | Real analyser data via `/api/*` server routes, batched metadata, hidden keys |
-| `artifact` | `@sveltejs/adapter-static` (SPA fallback) + `kit.output.bundleStrategy: 'inline'` | Portable, one `.html`, portfolio drop-in                       |
+| Target     | Adapter                                                                           | Purpose                                                                      |
+| ---------- | --------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `deployed` | `@sveltejs/adapter-auto` (resolves to `@sveltejs/adapter-vercel` on Vercel)       | Real analyser data via `/api/*` server routes, batched metadata, hidden keys |
+| `artifact` | `@sveltejs/adapter-static` (SPA fallback) + `kit.output.bundleStrategy: 'inline'` | Portable, one `.html`, portfolio drop-in                                     |
 
 This scaffold configures the adapter inline, inside the `sveltekit()` Vite plugin call in `vite.config.ts` — there is no separate `svelte.config.js`. The artifact build follows the same pattern in a second Vite config that swaps the adapter:
 
