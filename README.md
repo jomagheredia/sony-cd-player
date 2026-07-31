@@ -20,15 +20,9 @@ npm run build:artifact  # single-file portfolio HTML → build-artifact/index.ht
 
 ## Deploy to Vercel
 
-The repo is ready for GitHub → Vercel integration. No environment variables are required.
+Live at **[https://sony-cd-player.vercel.app/](https://sony-cd-player.vercel.app/)**
 
-1. Push is on `main` at [github.com/jomagheredia/sony-cd-player](https://github.com/jomagheredia/sony-cd-player)
-2. In the [Vercel dashboard](https://vercel.com/new), import `jomagheredia/sony-cd-player`
-3. Framework preset: **SvelteKit** (auto-detected)
-4. Build command: `npm run build` · Install command: `npm install`
-5. Deploy
-
-Production uses `@sveltejs/adapter-vercel`. Server routes become serverless functions:
+To redeploy: push to `main` on [github.com/jomagheredia/sony-cd-player](https://github.com/jomagheredia/sony-cd-player). No environment variables required.
 
 - `/api/stream` — CORS-clean audio proxy (required for the live meter)
 - `/api/resolve` — batch archive.org metadata

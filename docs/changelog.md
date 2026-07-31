@@ -4,6 +4,26 @@ Short entries after each build phase: what shipped, what's still open. Newest fi
 
 ---
 
+## 2026-07-31 — Production deploy live
+
+**Production URL:** [https://sony-cd-player.vercel.app/](https://sony-cd-player.vercel.app/)
+
+**Verified on production:**
+
+- Homepage 200, TTFB under 1s
+- `/api/resolve` — returns track metadata for default queue IDs
+- `/api/search` — returns archive.org hits
+- `/api/stream` — 200 with `access-control-allow-origin: *` (CORS gate path clear for live meter)
+- All three serverless routes responding on Vercel
+
+**Still open:**
+
+- Portfolio screenshot (meter lit during playback) — capture manually in browser while a track plays
+
+**Artifact (separate from Vercel):** `npm run build:artifact` → `build-artifact/index.html` for portfolio drop-in.
+
+---
+
 ## 2026-07-31 — Production deploy prep
 
 **What shipped:**
@@ -14,7 +34,7 @@ Short entries after each build phase: what shipped, what's still open. Newest fi
 - Pushed to [github.com/jomagheredia/sony-cd-player](https://github.com/jomagheredia/sony-cd-player) on `main`.
 - Updated [`README.md`](../README.md) with Vercel import steps.
 
-**Production URL:** _Pending — import the repo in the [Vercel dashboard](https://vercel.com/new) (GitHub integration). No env vars required._
+**Production URL:** [https://sony-cd-player.vercel.app/](https://sony-cd-player.vercel.app/) — _Pending at time of prep; see entry above._
 
 **Post-deploy checklist (run on live URL once deployed):**
 
