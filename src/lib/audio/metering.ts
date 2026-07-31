@@ -70,7 +70,10 @@ export function amplitudeToSegments(norm: number): number {
 }
 
 /** Instantaneous bar level: louder of RMS and peak (peak meters should react to transients). */
-export function levelsFromAnalyser(analyser: AnalyserNode, buffer: Uint8Array<ArrayBuffer>): number {
+export function levelsFromAnalyser(
+	analyser: AnalyserNode,
+	buffer: Uint8Array<ArrayBuffer>
+): number {
 	analyser.getByteTimeDomainData(buffer);
 	const { peak, rms } = measureTimeDomain(buffer);
 	return Math.max(amplitudeToSegments(rms), amplitudeToSegments(peak));
@@ -109,11 +112,20 @@ export function channelDisplay(
 /**
  * Artifact-mode envelope when CORS analysis isn't available.
  * Plausible motion from playback position + light randomness — never a dead meter.
+ *
+ * Shaped directly in segments rather than in amplitude. The -48..-3 dB window spans
+ * 14 segments, so ~3.2 dB per segment: any amplitude curve wide enough to travel the
+ * scale has to swing ~20x, and anything narrower reads as a bar parked near the top.
+ * Layers are phrase (slow swell), bar (medium), transient (hits), flutter, noise —
+ * so the meter breathes on two timescales the way programme material does.
  */
 export function simulateEnvelope(currentTime: number, channel: 'L' | 'R'): number {
-	const phase = channel === 'L' ? 0 : 0.7;
-	const pulse = 0.35 + 0.45 * Math.abs(Math.sin(currentTime * 2.3 + phase));
-	const flutter = 0.08 * Math.sin(currentTime * 11.1 + phase * 2);
-	const noise = (Math.random() - 0.5) * 0.12;
-	return amplitudeToSegments(Math.min(1, Math.max(0, pulse + flutter + noise)));
+	const phase = channel === 'L' ? 0 : 0.9;
+	const phrase = 7.2 + 2.8 * Math.sin(currentTime * 0.28 + phase);
+	const bar = 1.4 * Math.sin(currentTime * 0.95 + phase * 1.7);
+	const transient = 2.0 * Math.abs(Math.sin(currentTime * 2.4 + phase)) ** 4;
+	const flutter = 0.45 * Math.sin(currentTime * 9.7 + phase * 3);
+	const noise = Math.random() * 0.45;
+	const segments = phrase + bar + transient + flutter + noise;
+	return Math.max(0, Math.min(SEGMENT_COUNT, Math.round(segments)));
 }

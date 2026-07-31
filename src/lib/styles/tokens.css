@@ -1,28 +1,72 @@
-/* CDP-XA7ES design tokens. OKLCH only — every color in every player component derives from here. */
+/* CDP-XA7ES design tokens. OKLCH only — every color in every player component derives from here.
+
+   Two deliberate hue families, as on the machine:
+   chassis is cool-neutral anodized aluminum (hue 260), the display cavity is warm amber (hue 60-80).
+   Nothing in the cavity is neutral; nothing on the chassis is warm except the gold accent. */
 
 :root {
 	/* Chassis — anodized aluminum, neutral-cool */
-	--chassis-bg: oklch(15% 0.005 260);
-	--chassis-panel: oklch(19% 0.006 260);
-	--chassis-edge: oklch(28% 0.008 260);
+	--chassis-void: oklch(6% 0.004 260); /* Room behind the machine */
+	--chassis-bg: oklch(12% 0.005 260);
+	--chassis-panel: oklch(17% 0.006 260); /* Faceplate */
+	--chassis-panel-hi: oklch(24% 0.007 260); /* Top bevel catching light */
+	--chassis-edge: oklch(27% 0.008 260);
+	--chassis-groove: oklch(9% 0.004 260); /* Recess shadow around the cavity */
 
-	/* Display cavity — warm-dark, amber bleeds into the black */
-	--display-bg: oklch(11% 0.015 60);
-	--display-amber: oklch(82% 0.16 72); /* Active phosphor */
-	--display-amber-mid: oklch(62% 0.13 70); /* Meter mid-range */
-	--display-dim: oklch(45% 0.09 68); /* Inactive segment */
-	--display-peak: oklch(70% 0.2 32); /* Peak-hold / clip */
+	/* Gold — the small accent block beside POWER, and ES-era badging */
+	--gold: oklch(70% 0.1 88);
+	--gold-dim: oklch(46% 0.06 88);
+
+	/* Display cavity — near-black, amber phosphor floats in it.
+	   Unlit segments read as absent, the way a real VFD does. */
+	--display-bg: oklch(9% 0.012 58);
+	--display-bg-deep: oklch(6.5% 0.008 55); /* Cavity floor at the edges */
+	--segment-off: oklch(19% 0.018 62); /* Unlit segment: structure, not light */
+
+	--phosphor-bright: oklch(90% 0.14 82); /* Peak of the glow — hero digits */
+	--phosphor: oklch(81% 0.16 72); /* Standard lit amber */
+	--phosphor-mid: oklch(66% 0.13 68); /* Meter mid-range, secondary readouts */
+	--phosphor-low: oklch(54% 0.1 66); /* Labels inside the cavity */
+	--phosphor-peak: oklch(69% 0.17 44); /* Peak-hold / clip segments — hot amber-red, not pink */
 
 	/* Controls */
-	--btn-surface: oklch(23% 0.006 260);
-	--btn-border: oklch(32% 0.008 260);
-	--btn-text: oklch(65% 0.012 260);
-	--btn-active: oklch(82% 0.16 72);
+	--btn-surface: oklch(20% 0.006 260);
+	--btn-surface-hi: oklch(26% 0.007 260);
+	--btn-border: oklch(30% 0.008 260);
+	--btn-text: oklch(74% 0.01 260);
+	--btn-active: var(--phosphor);
 
-	/* Silkscreen */
-	--text-label: oklch(48% 0.01 260);
-	--text-secondary: oklch(60% 0.012 260);
+	/* Silkscreen — printed on metal, never glowing.
+	   62% is the floor that clears WCAG AA for 10px labels on the faceplate. */
+	--text-label: oklch(62% 0.01 260);
+	--text-secondary: oklch(72% 0.012 260);
+
+	/* Type — 5 steps, ~1.3 ratio. Fixed rem for panel UI; the time readout is the
+	   one fluid step because the cavity is the hero object, not a text column. */
+	--font-silk: system-ui, sans-serif;
+	--font-vfd: 'Share Tech Mono', ui-monospace, monospace;
+	--font-digits: 'DSEG7 Classic', 'Share Tech Mono', ui-monospace, monospace;
+
+	--type-silk: 0.625rem; /* Silkscreen labels, tracked out */
+	--type-sm: 0.8125rem; /* Track rows */
+	--type-md: 1.0625rem; /* Track title */
+	--type-lg: 1.375rem; /* Track number */
+	--type-hero: clamp(2rem, 4.2vw, 3rem); /* Elapsed time */
+
+	--track-silk: 0.28em; /* Letter-spacing for silkscreen caps */
+
+	/* Space — 4pt scale, semantic names */
+	--space-2xs: 4px;
+	--space-xs: 8px;
+	--space-sm: 12px;
+	--space-md: 16px;
+	--space-lg: 24px;
+	--space-xl: 32px;
+	--space-2xl: 48px;
 
 	--radius: 2px;
-	--space: 4px;
+
+	/* Motion — exponential deceleration, no bounce */
+	--ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+	--ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }

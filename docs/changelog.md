@@ -4,6 +4,72 @@ Short entries after each build phase: what shipped, what's still open. Newest fi
 
 ---
 
+## 2026-07-30 — Craft pass: power-on ceremony + faceplate polish
+
+**What shipped:**
+
+- `src/lib/state/power.svelte.ts` — power state machine (`standby → energize → self-test → on`, 180ms/700ms),
+  session-scoped replay via `sessionStorage['xa7es-power']`, reduced-motion path collapsing to a 200ms fade.
+  Powering off stops playback and resets the meter.
+- `power-key.svelte` (POWER key + gold accent block, amber pilot) and `level-control.svelte` (LINE OUT LEVEL
+  fader — volume already had `↑`/`↓` shortcuts but no visible state). `engine.unlock()` opens the AudioContext
+  from the POWER gesture, so the first play never fights autoplay policy.
+- Ceremony: cavity filament bloom that overshoots then settles at 0.18, full segment self-test striking L→R
+  22ms apart with the right channel offset 70ms, `TRACK 88` / `88:88` / all indicators lit / badge `TEST`, then
+  a TOC-read beat driven by the _real_ queue resolve.
+- **Fixed a layout bug found with real data:** the two deck columns had no `min-width: 0`, so a 100-character
+  archive.org title stole width from the display cavity and crushed it to a sliver, mangling the transport row.
+  Deck is now a `minmax(0, 1.35fr) minmax(0, 1fr)` grid.
+- **Fixed a dead artifact meter, twice.** First pass: `simulateEnvelope` returned amplitudes of 0.29–0.94, which
+  through the −48…−3 dB window pinned all 14 segments on permanently. Reshaping the amplitude fixed the peg but
+  sampling the built artifact showed it only travelling 10–12 of 14 over a full 14s cycle — still a parked bar,
+  just parked lower. The window spans 14 segments across 45 dB, so ~3.2 dB per segment: any amplitude curve wide
+  enough to walk the scale has to swing ~20×. Now shaped directly in the segment domain from four layers
+  (phrase / bar / transient / flutter + noise). Modelled the distribution through the actual peak-hold path
+  before shipping: travels 5–14, mass at 10–12, top segment lit 2.3% of the time so clip stays meaningful.
+  Live artifact sampling confirms 8–13 across a phrase with an audible-looking dynamic drop.
+- **Rewrote the title scroll.** The two-copy seamless loop showed the tail of one string and the head of the next
+  simultaneously, which read as garbled text rather than one title. Replaced with a measured single-pass scroll:
+  `scrollWidth` vs container width gives the exact overflow, the element scrolls by that amount and no more, at a
+  constant 38 px/s with a 3.2s dwell at each end and a snap back. Only engages when the title actually overruns
+  the cavity — at full width nothing scrolls at all.
+- Retuned the whole token set: near-black cavity with `--segment-off` dark enough that a silent meter reads as
+  silent (was bright enough to look fully lit), ascending amber→red segment heat (the old 11–12 band dipped
+  _darker_), 5-step type scale at ~1.3 ratio plus a fluid hero step, `--text-label` raised to 62% lightness for
+  WCAG AA on 10px silkscreen, gold accent, semantic space scale, easing tokens.
+- `@fontsource/dseg7-classic` for the large digits and track number — true seven-segment numerals, self-hosted
+  so they inline as a data URL and render offline in the artifact. Share Tech Mono keeps everything smaller,
+  where DSEG7 stops being legible.
+- Chassis is now a viewport-filling instrument: centered in a darker surround, anodized grain overlay, top
+  bevel, one soft shadow grounding it. Top rail carries `XA7ES` + `CURRENT PULSE D/A CONVERT SYSTEM`; POWER far
+  left and transport right, as on the faceplate.
+- Track list: replaced the 2px left accent bar (a hard anti-pattern) with a `▸` caret in the index column plus
+  a warm row tint; title and artist both shrink and ellipsize; recessed well instead of a card; `NO DISC` /
+  `READING TOC` empty states that say what to do.
+- Every control except POWER is genuinely `disabled` until warm-up completes, and the global keydown handler
+  returns early — inert to eye, keyboard, and assistive tech alike. The level fader's fill dims in standby too;
+  left bright it was the most eye-catching thing on a sleeping faceplate.
+- `--phosphor-peak` moved from hue 36 to 44 — the clip segments were reading pink against amber instead of
+  running hot within the same phosphor family.
+- Renamed a local `const state` in `display-panel.svelte` to `playbackState`: it shadowed the `$state` rune, so
+  Svelte parsed `$state(0)` as store auto-subscription and `svelte-check` threw four errors.
+- Verified: ceremony phase timings traced in-browser, reduced-motion confirmed collapsing standby → energize →
+  on inside 260ms with the self-test skipped, CORS gate still PASS with live stereo asymmetry (12L/11R), empty
+  state forced by blocking `/api/resolve`, title scroll measured at 390px (188px overflow, 11.35s cycle, one
+  string on screen) with no horizontal overflow, meter travel sampled in the built artifact, both build targets,
+  `svelte-check` 0/0.
+
+**What's still open:**
+
+- Vercel production deploy + portfolio screenshot (unchanged from phase 7).
+- Under `prefers-reduced-motion`, an over-long title stops scrolling and is hard-clipped at the cavity edge, so
+  its tail is unreachable there. The full string is in the track list row, so nothing is lost outright — but a
+  non-animated affordance (tap-to-reveal, or wrapping to a second cavity line) would close it properly.
+- `npm run lint` fails on `prettier --check` for seven markdown/config files and one pre-existing eslint error
+  in `src/app.d.ts` (`ImportMetaEnv` unused). All predate this pass; left alone to keep the diff focused.
+
+---
+
 ## 2026-07-28 — Phase 7: dual build target
 
 **What shipped:**

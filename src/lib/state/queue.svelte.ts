@@ -3,6 +3,7 @@ import type { Track } from '$lib/api/types';
 /* Queue starts empty; player-shell loads DEFAULT_IDS via /api/resolve on mount. */
 
 let tracks = $state<Track[]>([]);
+let reading = $state(true);
 let shuffle = $state(false);
 let repeat = $state<'off' | 'track' | 'all'>('off');
 let volume = $state(0.8);
@@ -13,6 +14,13 @@ export const queue = {
 	},
 	set tracks(next: Track[]) {
 		tracks = next;
+	},
+	/** True while the initial resolve is in flight — the TOC read, in machine terms. */
+	get reading() {
+		return reading;
+	},
+	set reading(next: boolean) {
+		reading = next;
 	},
 	append(next: Track[]) {
 		const unique = next.filter(
