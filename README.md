@@ -1,42 +1,44 @@
-# sv
+# CDP-XA7ES — Sony CD Player Tribute
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+Browser-based tribute to the Sony CDP-XA7ES (1995), streaming public-domain audio from the Internet Archive with a live Web Audio peak meter.
 
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
+## Develop
 
 ```sh
-# create a new project
-npx sv create my-app
-```
-
-To recreate this project with the same configuration:
-
-```sh
-# recreate this project
-npx sv@0.16.5 create --template minimal --types ts --add eslint prettier --install npm .
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
+npm install
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
 
-## Building
+Open [http://localhost:5173](http://localhost:5173).
 
-To create a production version of your app:
+## Build
 
 ```sh
-npm run build
+npm run build           # Vercel / deployed target (real analyser via /api/*)
+npm run build:artifact  # single-file portfolio HTML → build-artifact/index.html
 ```
 
-You can preview the production build with `npm run preview`.
+## Deploy to Vercel
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+Live at **[https://sony-cd-player.vercel.app/](https://sony-cd-player.vercel.app/)**
+
+To redeploy: push to `main` on [github.com/jomagheredia/sony-cd-player](https://github.com/jomagheredia/sony-cd-player). No environment variables required.
+
+- `/api/stream` — CORS-clean audio proxy (required for the live meter)
+- `/api/resolve` — batch archive.org metadata
+- `/api/search` — archive.org search
+
+## Post-deploy verification
+
+On the live URL, confirm:
+
+- Console shows `[CDP-XA7ES CORS gate] … PASS` while playing
+- Peak meter segments respond to audio
+- Search returns tracks progressively
+- Network tab shows `/api/stream?url=…` (not direct archive.org)
+
+## Docs
+
+- [`cdp-xa7es-prompt.md`](cdp-xa7es-prompt.md) — design spec
+- [`docs/architecture.md`](docs/architecture.md) — structure and build strategy
+- [`docs/changelog.md`](docs/changelog.md) — build phases

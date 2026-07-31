@@ -9,6 +9,7 @@ Read this before writing any code. It defines conventions and constraints that a
 Sony CDP-XA7ES tribute music player. A browser-based front panel for a 1995 Japanese high-end CD transport, streaming public domain / CC audio from the Internet Archive. Signature element is a real segmented amber peak-level meter driven by `AnalyserNode` — not decoration, an instrument.
 
 Two build targets from one source:
+
 - **Artifact** — `vite-plugin-singlefile`, one portable `.html`, portfolio drop-in
 - **Deployed** — Vercel, static + serverless functions, real CORS-clean audio via proxy
 
@@ -29,7 +30,7 @@ Deploying to **Vercel**. Server routes are SvelteKit endpoints under `src/routes
 ## Toolchain for this build
 
 - **Claude Code / Cursor**: primary drivers for multi-file scaffolding, the audio/CORS debugging loop, and both build targets.
-- Limited hands-on Svelte/server-logic experience — explain *why* a serverless function or audio-graph pattern works, not just produce it silently.
+- Limited hands-on Svelte/server-logic experience — explain _why_ a serverless function or audio-graph pattern works, not just produce it silently.
 
 ---
 

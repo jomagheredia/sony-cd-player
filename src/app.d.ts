@@ -8,11 +8,15 @@ declare global {
 		// interface PageState {}
 		// interface Platform {}
 	}
-}
 
-interface ImportMetaEnv {
-	/** Set to "false" in the artifact build so the client skips /api/* proxies. */
-	readonly VITE_USE_PROXY?: string;
+	interface ImportMetaEnv {
+		/** Set to "false" in the artifact build so the client skips /api/* proxies. */
+		readonly VITE_USE_PROXY?: string;
+	}
+
+	interface ImportMeta {
+		readonly env: ImportMetaEnv;
+	}
 }
 
 export {};

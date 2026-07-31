@@ -15,6 +15,7 @@ Portfolio context: most Design Engineer artifacts stop at UI + a REST API. This 
 A Sony CDP-XA7ES tribute player — a browser-based front panel for a 1995 Japanese high-end CD transport, streaming public domain audio from the Internet Archive. The signature element is a segmented amber peak-level meter driven by live Web Audio analysis, not animation — a period-correct design choice that grounds the interface in real signal flow.
 
 Two build outputs from one codebase:
+
 - **Single-file artifact** (`adapter-static` + `bundleStrategy: 'inline'` → `.html`) — portfolio drop-in, works offline-ish, falls back to synthesized meter
 - **Deployed app** (Vercel → static + serverless) — real audio analysis, batched metadata, CORS-clean streaming
 
@@ -78,6 +79,6 @@ If the CORS gate (Phase 4) drags, that's a sign the proxy architecture is more c
 
 A visitor lands on the project, sees a faceplate that reads as hardware, clicks play, watches a segmented meter respond in real time to a Chopin nocturne or Duke Ellington track, and immediately understands: this person knows how to bridge design and signal processing. They can make both look intentional.
 
-The artifact version sits in a portfolio drop, works without a server, and doesn't pretend the meter is real — it's honest about the fallback. The deployed version has no fallbacks; the meter *is* real.
+The artifact version sits in a portfolio drop, works without a server, and doesn't pretend the meter is real — it's honest about the fallback. The deployed version has no fallbacks; the meter _is_ real.
 
 Portfolio narrative: "One codebase, two targets. Same design language, different infrastructure. This taught me why architects think about the proxy layer before the UI."

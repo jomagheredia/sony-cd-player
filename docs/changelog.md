@@ -4,6 +4,49 @@ Short entries after each build phase: what shipped, what's still open. Newest fi
 
 ---
 
+## 2026-07-31 — Production deploy live
+
+**Production URL:** [https://sony-cd-player.vercel.app/](https://sony-cd-player.vercel.app/)
+
+**Verified on production:**
+
+- Homepage 200, TTFB under 1s
+- `/api/resolve` — returns track metadata for default queue IDs
+- `/api/search` — returns archive.org hits
+- `/api/stream` — 200 with `access-control-allow-origin: *` (CORS gate path clear for live meter)
+- All three serverless routes responding on Vercel
+
+**Still open:**
+
+- Portfolio screenshot (meter lit during playback) — capture manually in browser while a track plays
+
+**Artifact (separate from Vercel):** `npm run build:artifact` → `build-artifact/index.html` for portfolio drop-in.
+
+---
+
+## 2026-07-31 — Production deploy prep
+
+**What shipped:**
+
+- Merged phases 6–7 into `main`: resolve/search APIs, keyboard shortcuts, title marquee, dual build (`npm run build:artifact`).
+- Pinned `@sveltejs/adapter-vercel` in [`vite.config.ts`](../vite.config.ts) for reliable Vercel builds.
+- Pre-deploy verification passed locally: `check`, `lint`, `build`, `build:artifact`; preview smoke test confirmed `/api/resolve`, `/api/search`, and `/api/stream` (CORS `*` headers).
+- Pushed to [github.com/jomagheredia/sony-cd-player](https://github.com/jomagheredia/sony-cd-player) on `main`.
+- Updated [`README.md`](../README.md) with Vercel import steps.
+
+**Production URL:** [https://sony-cd-player.vercel.app/](https://sony-cd-player.vercel.app/) — _Pending at time of prep; see entry above._
+
+**Post-deploy checklist (run on live URL once deployed):**
+
+- CORS gate console log shows `PASS`; meter animates during playback
+- Play / pause / seek / prev / next work
+- Search returns tracks progressively
+- Capture portfolio screenshot (meter lit during playback)
+
+**Artifact (separate from Vercel):** `npm run build:artifact` → `build-artifact/index.html` for portfolio drop-in.
+
+---
+
 ## 2026-07-30 — Craft pass: power-on ceremony + faceplate polish
 
 **What shipped:**
@@ -61,7 +104,8 @@ Short entries after each build phase: what shipped, what's still open. Newest fi
 
 **What's still open:**
 
-- Vercel production deploy + portfolio screenshot (unchanged from phase 7).
+- Portfolio screenshot (meter lit during playback) — production is live at
+  [https://sony-cd-player.vercel.app/](https://sony-cd-player.vercel.app/).
 - Under `prefers-reduced-motion`, an over-long title stops scrolling and is hard-clipped at the cavity edge, so
   its tail is unreachable there. The full string is in the track list row, so nothing is lost outright — but a
   non-animated affordance (tap-to-reveal, or wrapping to a second cavity line) would close it properly.
