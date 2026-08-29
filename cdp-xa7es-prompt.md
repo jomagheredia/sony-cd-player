@@ -80,7 +80,8 @@ faceplate sits _in_ the page rather than on it. The chassis has a max width of 1
 
 The faceplate body is a three-column grid using `minmax(0, 3fr) minmax(0, 4fr) minmax(0, 3fr)`: power, phones,
 level and AMS at left; the display inside the tray bezel at center; program and transport controls at right.
-The header follows the same tracks. `minmax(0, …)` remains load-bearing because archive.org titles can run past
+Equal side tracks put the tray on the chassis centerline, matching `XA7ES` / `CURRENT PULSE D/A CONVERT SYSTEM`
+in the header (`1fr auto 1fr`). `minmax(0, …)` remains load-bearing because archive.org titles can run past
 100 characters. Below 900px the aspect ratio is released and the zones stack; the compact header treatment
 continues below 720px and the chassis is edge-to-edge below 420px.
 

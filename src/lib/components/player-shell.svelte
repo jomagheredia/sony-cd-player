@@ -236,18 +236,22 @@
 	.header-band,
 	.faceplate-grid {
 		display: grid;
-		grid-template-columns: minmax(0, 2.6fr) minmax(0, 4.4fr) minmax(0, 3fr);
 		column-gap: var(--space-sm);
 	}
 
+	/* XA7ES sits on the chassis centerline; equal 1fr sides keep it there
+	   even when SONY and DIGITAL OUT have different widths. */
 	.header-band {
+		grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
 		min-height: 0;
 		align-items: center;
 		border-bottom: 1px solid var(--chassis-groove);
 		padding-bottom: var(--space-2xs);
 	}
 
+	/* Same centerline as the header mark: equal side columns, tray in the middle. */
 	.faceplate-grid {
+		grid-template-columns: minmax(0, 3fr) minmax(0, 4fr) minmax(0, 3fr);
 		min-height: 0;
 	}
 
@@ -465,7 +469,7 @@
 	}
 
 	.right-zone {
-		padding: var(--space-2xs) 0 var(--space-xs) var(--space-sm);
+		padding: var(--space-xs) 0 var(--space-xs) var(--space-sm);
 	}
 
 	.right-zone :global(.transport) {
