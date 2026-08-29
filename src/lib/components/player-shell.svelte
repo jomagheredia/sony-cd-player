@@ -158,8 +158,8 @@
 			</footer>
 		</div>
 
+		<!-- TODO(phase-E): replaced by the tray loading surface -->
 		<div class="track-panel">
-			<!-- // TODO(phase-E): replaced by the tray loading surface -->
 			<TrackList />
 		</div>
 	</div>
@@ -236,6 +236,10 @@
 		column-gap: var(--space-sm);
 	}
 
+	.faceplate-grid {
+		min-height: 0;
+	}
+
 	.header-cell {
 		min-width: 0;
 		display: flex;
@@ -305,13 +309,18 @@
 		background: var(--chassis-groove);
 	}
 
-	.faceplate-grid {
-		min-height: 0;
+	.left-service-row,
+	.left-zone :global(.ams-controls),
+	.center-zone,
+	.right-zone {
 		transition: opacity 420ms var(--ease-out-quart);
 	}
 
 	/* Powered down, the controls recede; POWER stays at full contrast as the only live control. */
-	.machine[data-phase='standby'] .faceplate-grid {
+	.machine[data-phase='standby'] .left-service-row,
+	.machine[data-phase='standby'] .left-zone :global(.ams-controls),
+	.machine[data-phase='standby'] .center-zone,
+	.machine[data-phase='standby'] .right-zone {
 		opacity: 0.5;
 	}
 
@@ -386,10 +395,22 @@
 
 	.tray-window {
 		min-width: 0;
+		min-height: 0;
+		flex: 1;
+		overflow: hidden;
 	}
 
+	/* Fit the existing display stack into the 430/125 band without rewriting the panel. */
 	.tray-window :global(.display) {
 		width: 100%;
+		height: 100%;
+		padding: var(--space-xs) var(--space-sm);
+		--type-hero: clamp(1.35rem, 2.4vw, 2rem);
+		--segment-height: 10px;
+	}
+
+	.tray-window :global(.display-glyphs) {
+		gap: var(--space-2xs);
 	}
 
 	.disc-mark {
@@ -530,7 +551,10 @@
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.faceplate-grid {
+		.left-service-row,
+		.left-zone :global(.ams-controls),
+		.center-zone,
+		.right-zone {
 			transition-duration: 120ms;
 		}
 	}

@@ -96,7 +96,7 @@ genuinely `disabled`. Pressing POWER runs the warm-up. State lives in `src/lib/s
 
 | Phase       | Window    | What happens                                                                                                             |
 | ----------- | --------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `standby`   | —         | Cavity black, `--segment-off-live: transparent` so unlit segments vanish, deck at 50% opacity.                           |
+| `standby`   | —         | Cavity black, `--segment-off-live: transparent` so unlit segments vanish, faceplate zones at 50% opacity except POWER.   |
 | `energize`  | 0–180ms   | Filament bloom overshoots and settles; no glyphs yet.                                                                    |
 | `self-test` | 180–880ms | Every segment strikes L→R, 22ms apart, R offset 70ms. Glyphs read `TRACK 88`, `88:88`, all indicators lit, badge `TEST`. |
 | `on`        | 880ms+    | Real values. Controls become live.                                                                                       |
@@ -160,8 +160,8 @@ Simulated VFD cavity: `box-shadow: inset 0 0 24px oklch(0% 0 0 / 0.85), 0 0 10px
 Rows:
 
 1. Indicator strip: `SHUFFLE` / `REPEAT` / `REPEAT 1` left, status badge right. The indicators are lit/unlit
-   silkscreen driven by queue state — the period-correct place for mode state. They are `aria-hidden`; the
-   transport buttons carry `aria-pressed` so assistive tech is told once, not twice.
+   silkscreen driven by queue state — the period-correct place for mode state. They are `aria-hidden`; keyboard
+   shortcuts still toggle shuffle/repeat even though those keys are no longer on the faceplate.
 2. `TRACK` silkscreen label + track number in `'DSEG7 Classic'`
 3. Track title, `'Share Tech Mono'` — scrolls only when it overruns the cavity, and only by the measured
    overflow: dwell, walk to the end at ~38 px/s, dwell, snap back. One string on screen at all times; never a
@@ -200,17 +200,17 @@ assistive tech agree with what the eye sees. The global keydown handler returns 
 Hierarchy: POWER has the lightest face on the faceplate (in standby it is the only live control). Play is wider
 than its neighbours with brighter text. Mode keys are the smallest. Not every key is primary.
 
-| Control        | Glyph      | Behavior                                                                               |
-| -------------- | ---------- | -------------------------------------------------------------------------------------- |
-| Power          | `POWER`    | Toggle standby ⇄ on. Runs the ceremony, unlocks audio, stops playback on off.          |
-| Line out level | rotary     | Static Phase A control whose pointer mirrors the current volume and `↑`/`↓` shortcuts. |
-| Scan           | `◄◄`/`►►`  | Seek backward/forward 5 seconds through the existing seek handler.                     |
-| Previous/next  | `          | ◄◄`/`►►                                                                                | `   | Preserve the existing previous/next behavior. |
-| Play           | `►`        | Calls the existing play/pause toggle until Phase D splits the handlers.                |
-| Pause          | `❙❙`       | Calls the existing play/pause toggle until Phase D splits the handlers.                |
-| Stop           | `■`        | Stop and reset position.                                                               |
-| Open/close     | `△`        | Inert placeholder until tray behavior lands.                                           |
-| Program pad    | round keys | Inert, focusable placeholders for numeric/program functions.                           |
+| Control        | Glyph           | Behavior                                                                               |
+| -------------- | --------------- | -------------------------------------------------------------------------------------- |
+| Power          | `POWER`         | Toggle standby ⇄ on. Runs the ceremony, unlocks audio, stops playback on off.          |
+| Line out level | rotary          | Static Phase A control whose pointer mirrors the current volume and `↑`/`↓` shortcuts. |
+| Scan           | `◄◄` / `►►`     | Seek backward/forward 5 seconds through the existing seek handler.                     |
+| Previous/next  | `\|◄◄` / `►►\|` | Preserve the existing previous/next behavior.                                          |
+| Play           | `►`             | Calls the existing play/pause toggle until Phase D splits the handlers.                |
+| Pause          | `❙❙`            | Calls the existing play/pause toggle until Phase D splits the handlers.                |
+| Stop           | `■`             | Stop and reset position.                                                               |
+| Open/close     | `△`             | Inert placeholder until tray behavior lands.                                           |
+| Program pad    | round keys      | Inert, focusable placeholders for numeric/program functions.                           |
 
 Geometric Unicode only. No emoji.
 

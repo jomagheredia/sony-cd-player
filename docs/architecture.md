@@ -80,6 +80,9 @@ sony-cd-player/
 │       │   ├── player-shell.svelte # mount resolve + keyboard shortcuts
 │       │   ├── display-panel.svelte
 │       │   ├── peak-meter.svelte   # signature element
+│       │   ├── power-key.svelte
+│       │   ├── level-control.svelte
+│       │   ├── ams-controls.svelte
 │       │   ├── transport-controls.svelte
 │       │   ├── track-list.svelte
 │       │   └── search-bar.svelte
