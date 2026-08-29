@@ -196,6 +196,7 @@
 		position: relative;
 		isolation: isolate;
 		width: 100%;
+		max-width: 1100px;
 		aspect-ratio: 430 / 125;
 		overflow: hidden;
 		min-height: 0;
