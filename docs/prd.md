@@ -30,14 +30,28 @@ Two build outputs from one codebase:
 
 ## Success criteria
 
-The project is done when:
+Shipped (phases 1–7 + production deploy at [https://sony-cd-player.vercel.app/](https://sony-cd-player.vercel.app/)):
 
 1. **Both builds work** — artifact runs standalone in a browser (`file://` or served), deployed version runs on Vercel without CORS fallback
 2. **Meter is real** — `AnalyserNode` drives the meter; console verification passes (min/max not stuck at 128)
 3. **Loads fast** — cold artifact load under 200ms, deployed version cold start under 1s, hot start under 100ms
 4. **Faceplate reads as hardware** — anyone who knows Sony ES gear recognizes the design language (amber not green, segmented not spectrum, rectangular buttons, monospace VFD)
 5. **Audio streams** — five default archive.org tracks load, play, seek works, error states visible
+
+Still open:
+
 6. **One portfolio screenshot** — clean shot of the meter animating against track playback; this is the one image that proves the concept
+
+---
+
+## Current status
+
+Phases 1–7 (chassis through dual build) and the Vercel deploy are done. Remaining craft work, tracked in `docs/changelog.md`:
+
+- Phase B — materials / finish
+- Phase D — distinct play / pause handlers and rotary drag
+- Phase E — tray loading surface (track list is a temporary panel below the chassis)
+- Portfolio screenshot of the live meter
 
 ---
 
@@ -54,14 +68,16 @@ The project is done when:
 
 ## Scope boundary
 
-This is a **six-week artifact** at sustainable pace (≈10 hrs/week, Vercel free tier, no paid infrastructure).
+Original plan: a **six-week artifact** at sustainable pace (≈10 hrs/week, Vercel free tier, no paid infrastructure).
 
 - Phases 1–4 (scaffold, shell, audio engine, CORS gate): 1–1.5 weeks
 - Phase 5 (meter tuning): 2–3 weeks — this is where the signature lives, worth the time
 - Phase 6 (queue/search/dual build): 1–1.5 weeks
 - Testing, screenshots, portfolio write-up: 1 week
 
-If the CORS gate (Phase 4) drags, that's a sign the proxy architecture is more complex than expected — flag it early.
+Phases 1–7 and the production deploy shipped. Remaining work is the faceplate craft pass and the portfolio screenshot listed under Current status — not a new calendar.
+
+If the CORS gate (Phase 4) had dragged, that would have been a sign the proxy architecture was more complex than expected. It cleared; the meter is live.
 
 ---
 

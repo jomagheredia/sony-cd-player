@@ -12,7 +12,7 @@ Two targets, one SvelteKit codebase, switched by **adapter**, not by framework:
 
 | Target     | Adapter                                                                           | Purpose                                                                      |
 | ---------- | --------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| `deployed` | `@sveltejs/adapter-auto` (resolves to `@sveltejs/adapter-vercel` on Vercel)       | Real analyser data via `/api/*` server routes, batched metadata, hidden keys |
+| `deployed` | `@sveltejs/adapter-vercel` (pinned in `vite.config.ts`)                           | Real analyser data via `/api/*` server routes, batched metadata, hidden keys |
 | `artifact` | `@sveltejs/adapter-static` (SPA fallback) + `kit.output.bundleStrategy: 'inline'` | Portable, one `.html`, portfolio drop-in                                     |
 
 This scaffold configures the adapter inline, inside the `sveltekit()` Vite plugin call in `vite.config.ts` — there is no separate `svelte.config.js`. The artifact build follows the same pattern in a second Vite config that swaps the adapter:
@@ -21,7 +21,7 @@ This scaffold configures the adapter inline, inside the `sveltekit()` Vite plugi
 // package.json scripts
 {
 	"dev": "vite dev",
-	"build": "vite build", // deployed target (adapter-auto → Vercel)
+	"build": "vite build", // deployed target (adapter-vercel)
 	"build:artifact": "vite build --config vite.config.artifact.ts && node scripts/prune-artifact.mjs",
 	"preview": "vite preview",
 	"preview:artifact": "python3 -m http.server 4177 --directory build-artifact"
@@ -30,7 +30,7 @@ This scaffold configures the adapter inline, inside the `sveltekit()` Vite plugi
 
 `vite.config.artifact.ts` mirrors `vite.config.ts` but:
 
-- passes `adapter: adapterStatic({ pages: 'build-artifact', assets: 'build-artifact', fallback: 'index.html', strict: false })` to `sveltekit()` instead of `adapter-auto`
+- passes `adapter: adapterStatic({ pages: 'build-artifact', assets: 'build-artifact', fallback: 'index.html', strict: false })` to `sveltekit()` instead of `adapter-vercel`
 - sets `output: { bundleStrategy: 'inline' }` so JS + CSS land inside `index.html` (SvelteKit-native; preferred over `vite-plugin-singlefile`)
 - sets `build.assetsInlineLimit: Infinity` so font assets can embed
 - sets `define: { 'import.meta.env.VITE_USE_PROXY': JSON.stringify('false') }` so the client calls archive.org directly instead of `/api/*`
@@ -42,7 +42,7 @@ This scaffold configures the adapter inline, inside the `sveltekit()` Vite plugi
 
 The client detects mode at runtime via `import.meta.env.VITE_USE_PROXY`. In artifact mode it calls archive.org directly and degrades gracefully (meter falls back to a simulated envelope, per the fallback spec in `cdp-xa7es-prompt.md`). In deployed mode it calls `/api/*` and gets guaranteed CORS-clean audio.
 
-**Deploy**: `npm run build` on Vercel (Git integration or `npx vercel`). `adapter-auto` selects `@sveltejs/adapter-vercel`; no `vercel.json` required for the three `/api/*` routes.
+**Deploy**: `npm run build` on Vercel (Git integration or `npx vercel`). `vite.config.ts` pins `@sveltejs/adapter-vercel`; no `vercel.json` required for the three `/api/*` routes. Live at [https://sony-cd-player.vercel.app/](https://sony-cd-player.vercel.app/).
 
 ---
 
@@ -71,20 +71,19 @@ sony-cd-player/
 │   │       ├── stream/
 │   │       │   └── +server.ts      # CORS-clean audio proxy (forwards Range headers)
 │   │       └── search/
-│   │           └── +server.ts      # wraps archive.org advanced search → Track[]
+│   │           └── +server.ts      # advancedsearch hits → { id, title, artist }[]
 │   └── lib/
 │       ├── styles/
 │       │   └── tokens.css          # CDP-XA7ES OKLCH tokens (chassis/display/controls)
 │       ├── components/
-│       │   ├── ui/                 # shadcn-svelte primitives (existing alias, style: lyra)
-│       │   ├── player-shell.svelte # mount resolve + keyboard shortcuts
+│       │   ├── player-shell.svelte # 30/40/30 faceplate, mount resolve + keyboard
 │       │   ├── display-panel.svelte
 │       │   ├── peak-meter.svelte   # signature element
 │       │   ├── power-key.svelte
 │       │   ├── level-control.svelte
 │       │   ├── ams-controls.svelte
 │       │   ├── transport-controls.svelte
-│       │   ├── track-list.svelte
+│       │   ├── track-list.svelte   # temporary panel below chassis (phase E)
 │       │   └── search-bar.svelte
 │       ├── audio/
 │       │   ├── engine.ts           # <audio> + Web Audio graph (splitter → L/R analysers)
@@ -92,7 +91,8 @@ sony-cd-player/
 │       │   └── meter.svelte.ts     # rAF loop → reactive L/R display levels
 │       ├── state/
 │       │   ├── playback.svelte.ts  # typed playback state machine, runes-based
-│       │   ├── queue.svelte.ts     # queue/shuffle/repeat/volume, runes-based
+│       │   ├── power.svelte.ts    # standby → energize → self-test → on
+│       │   ├── queue.svelte.ts     # queue/shuffle/repeat/volume/reading
 │       │   └── ui.svelte.ts        # SEARCHING / NO RESULTS display flashes
 │       ├── api/
 │       │   ├── archive.ts          # shared IA metadata → Track helpers + DEFAULT_IDS
@@ -103,7 +103,7 @@ sony-cd-player/
 ├── static/
 │   └── robots.txt
 ├── package.json
-├── vite.config.ts                  # deployed target (adapter-auto)
+├── vite.config.ts                  # deployed target (adapter-vercel)
 ├── vite.config.artifact.ts         # single-file target (adapter-static + inline)
 ├── scripts/
 │   └── prune-artifact.mjs          # leave only build-artifact/index.html
@@ -112,11 +112,13 @@ sony-cd-player/
 
 Naming: kebab-case for all files, CSS classes, and branches. Code comments in English only. Components are `.svelte` files (PascalCase export names are not applicable — SvelteKit resolves components by filename, which stays kebab-case per project convention).
 
-**State**: no hand-rolled pub/sub. `playback.svelte.ts`, `queue.svelte.ts`, `ui.svelte.ts`, and `meter.svelte.ts` hold `$state` at module scope — Svelte 5's idiomatic pattern for shared state without a store library. The display panel and transport controls read/write this state directly.
+**State**: no hand-rolled pub/sub. `playback.svelte.ts`, `power.svelte.ts`, `queue.svelte.ts`, `ui.svelte.ts`, and `meter.svelte.ts` hold `$state` at module scope — Svelte 5's idiomatic pattern for shared state without a store library. The display panel is a function of **power + playback + ui flash**; transport and other keys stay `disabled` until `power.ready`.
 
 **Styling split**: `src/routes/layout.css` is the shadcn-svelte theme (light/dark tokens, Tailwind layers, JetBrains Mono as `--font-mono`) — leave it as shadcn manages it. `src/lib/styles/tokens.css` is the CDP-XA7ES chassis/display/control tokens from `cdp-xa7es-prompt.md` (OKLCH, amber phosphor, etc.), imported by the player shell. The player is dark-only per the PRD, so it doesn't consume shadcn's `.dark` toggle — it uses its own fixed token set regardless of that class.
 
-**Typography**: display/VFD characters use `'Share Tech Mono'` (loaded via Google Fonts in the player shell). JetBrains Mono remains on the shadcn theme layer only and is not used by the chassis.
+**Typography**: large elapsed time and track number use `'DSEG7 Classic'` (`@fontsource/dseg7-classic`, self-hosted so it inlines into the artifact). Everything else inside the cavity uses `'Share Tech Mono'` (Google Fonts). JetBrains Mono remains on the shadcn theme layer only and is not used by the chassis.
+
+**Faceplate**: the chassis follows the real 430 × 125 mm enclosure (`aspect-ratio: 430 / 125`, max-width 1100px) as a 30/40/30 three-zone grid (`minmax(0, 3fr) minmax(0, 4fr) minmax(0, 3fr)`) — power / phones / rotary level / AMS at left, tray bezel + display at center, program pad + split transport at right. The header mark is `1fr auto 1fr` so `XA7ES` shares the tray's centerline. Track list + search sit in a temporary full-width panel below the chassis (`TODO(phase-E)` tray loading surface). Play and pause both call the existing toggle; the rotary pointer mirrors `queue.volume` but is not yet draggable (`TODO(phase-D)`). Open/close and the numeric pad are inert placeholders. Below 900px the aspect ratio is released and the zones stack. Visual/behavioral detail lives in `cdp-xa7es-prompt.md`.
 
 ---
 
@@ -174,7 +176,9 @@ interface Track {
 
 ## Playback state machine
 
-Modeled as a discriminated union — the display is a pure function of this state, not scattered conditionals. Lives in `src/lib/state/playback.svelte.ts` as module-scope `$state`, read via a getter export (Svelte 5 doesn't allow exporting a reassignable `let` bound to `$state` directly from a module, so it's wrapped in an object or accessed via functions).
+Modeled as a discriminated union — the display is a function of **power + this state + ui flash**, not scattered conditionals. Lives in `src/lib/state/playback.svelte.ts` as module-scope `$state`, read via a getter export (Svelte 5 doesn't allow exporting a reassignable `let` bound to `$state` directly from a module, so it's wrapped in an object or accessed via functions).
+
+Power (`src/lib/state/power.svelte.ts`) gates the faceplate: `standby → energize → self-test → on`. Every control except POWER is `disabled` until `power.ready`. The POWER press calls `engine.unlock()` so the first play does not fight autoplay policy.
 
 ```typescript
 type PlaybackState =
@@ -185,8 +189,11 @@ type PlaybackState =
 	| { status: 'paused'; trackIndex: number }
 	| { status: 'error'; trackIndex: number; reason: string };
 
+type PowerPhase = 'standby' | 'energize' | 'self-test' | 'on';
+
 interface QueueState {
 	tracks: Track[];
+	reading: boolean; // true while the initial DEFAULT_IDS resolve (TOC read) is in flight
 	shuffle: boolean;
 	repeat: 'off' | 'track' | 'all';
 	volume: number;

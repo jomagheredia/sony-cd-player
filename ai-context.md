@@ -10,7 +10,7 @@ Sony CDP-XA7ES tribute music player. A browser-based front panel for a 1995 Japa
 
 Two build targets from one source:
 
-- **Artifact** — `vite-plugin-singlefile`, one portable `.html`, portfolio drop-in
+- **Artifact** — `@sveltejs/adapter-static` + `kit.output.bundleStrategy: 'inline'`, one portable `.html`, portfolio drop-in
 - **Deployed** — Vercel, static + serverless functions, real CORS-clean audio via proxy
 
 Deploying to **Vercel**. Server routes are SvelteKit endpoints under `src/routes/api/{resolve,stream,search}/+server.ts` — `adapter-vercel` turns each into a Vercel Function. (Earlier drafts mentioned bare `/api/*.ts` files; that was the pre-SvelteKit plan and is obsolete.)
@@ -20,7 +20,7 @@ Deploying to **Vercel**. Server routes are SvelteKit endpoints under `src/routes
 ## Conventions (apply everywhere, not just this file's spec)
 
 - **Colors**: OKLCH only. Never HEX or HSL unless a spec explicitly mandates it.
-- **Fonts**: `system-ui` stacks. Never `-apple-system` or `BlinkMacSystemFont`. Display/VFD mono uses `'Share Tech Mono'` (Google Fonts); shadcn's JetBrains Mono stays on the theme layer only.
+- **Fonts**: `system-ui` stacks. Never `-apple-system` or `BlinkMacSystemFont`. Large VFD digits (elapsed time, track number) use `'DSEG7 Classic'`; smaller cavity text uses `'Share Tech Mono'` (Google Fonts). shadcn's JetBrains Mono stays on the theme layer only.
 - **Naming**: kebab-case for files, folders, CSS classes, Git branches. Components are kebab-case `.svelte` files (SvelteKit resolves by filename).
 - **Comments**: English only, in code.
 - **Copy**: any user-facing label or string is neutral Spanish, no slang, no regional accent — unless it's a technical term with no clean equivalent (keep those in English). UI labels in this project (`TRACK`, `PLAY`, `NO DISC`) are hardware silkscreen text, not prose — leave those as-is; this rule applies to anything conversational (search placeholder copy, error toasts, etc. if added).
@@ -58,7 +58,7 @@ If both values are `128`, the audio graph is silent — CORS is blocking analysi
 6. Queue, `/api/resolve` batching, search, keyboard shortcuts, title marquee
 7. Both build targets verified independently
 
-Phases 1–7 dual-build are done — see `docs/changelog.md`. Remaining: Vercel production deploy + portfolio screenshot.
+Phases 1–7 dual-build and the Vercel production deploy are done — see `docs/changelog.md`. Remaining: portfolio screenshot + faceplate phases B (materials/finish), D (distinct play/pause + rotary drag), and E (tray loading surface).
 
 ---
 
