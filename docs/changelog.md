@@ -4,6 +4,20 @@ Short entries after each build phase: what shipped, what's still open. Newest fi
 
 ---
 
+## 2026-08-29 — Center the tray on the XA7ES axis
+
+**What shipped:**
+
+- Faceplate columns are equal on both sides again (`3fr / 4fr / 3fr`) so the tray sits on the chassis
+  centerline instead of the previous `2.6fr / 4.4fr / 3fr` shift to the left.
+- Header mark `XA7ES` / `CURRENT PULSE D/A CONVERT SYSTEM` is `1fr auto 1fr`, so it stays on that same axis.
+
+**What's still open:**
+
+- Phase B materials/finish, Phase D distinct play/pause handlers and rotary drag, Phase E tray loading surface.
+
+---
+
 ## 2026-08-29 — Faceplate copy and key anchoring
 
 **What shipped:**
