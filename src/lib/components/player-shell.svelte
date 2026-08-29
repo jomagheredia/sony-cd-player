@@ -197,6 +197,8 @@
 		isolation: isolate;
 		width: 100%;
 		aspect-ratio: 430 / 125;
+		overflow: hidden;
+		min-height: 0;
 		box-sizing: border-box;
 		font-family: var(--font-silk);
 		background: var(--chassis-panel);
@@ -479,6 +481,7 @@
 	@media (max-width: 900px) {
 		.machine {
 			aspect-ratio: auto;
+			overflow: visible;
 		}
 
 		.faceplate-grid {
@@ -541,7 +544,6 @@
 		.machine {
 			border: 0;
 			border-radius: 0;
-			min-height: 100dvh;
 		}
 
 		.track-panel {
