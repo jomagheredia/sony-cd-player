@@ -1,134 +1,90 @@
 <script lang="ts">
-	import { engine } from '$lib/audio/engine';
-	import { power } from '$lib/state/power.svelte';
 	import { queue } from '$lib/state/queue.svelte';
 
-	/* The faceplate has a LINE OUT level control. Volume was already adjustable with the
-	   arrow keys but had no visible state — this is the missing half of that feature. */
-
-	const inert = $derived(!power.ready);
 	const percent = $derived(Math.round(queue.volume * 100));
-
-	function onInput(event: Event) {
-		const value = Number((event.currentTarget as HTMLInputElement).value) / 100;
-		queue.volume = value;
-		engine.setVolume(queue.volume);
-	}
+	const angle = $derived(-135 + queue.volume * 270);
+	// TODO(phase-D): add drag interaction to the rotary level control.
 </script>
 
-<div class="level">
-	<span class="level-silk">Line out level</span>
-	<input
-		class="level-fader"
-		type="range"
-		min="0"
-		max="100"
-		step="1"
-		value={percent}
-		disabled={inert}
-		aria-label="Line out level"
-		aria-valuetext="{percent} percent"
-		oninput={onInput}
-		style:--fill="{percent}%"
-	/>
+<div class="level" role="img" aria-label="Line out and phone level: {percent} percent">
+	<span class="level-silk">Line Out</span>
+	<span class="level-silk">Phone Level</span>
+	<div class="knob-scale" aria-hidden="true">
+		<span class="scale-mark scale-mark--zero">0</span>
+		<div class="level-knob" style:transform="rotate({angle}deg)">
+			<span class="knob-index"></span>
+		</div>
+		<span class="scale-mark scale-mark--ten">10</span>
+	</div>
 </div>
 
 <style>
 	.level {
 		display: flex;
 		flex-direction: column;
-		gap: var(--space-2xs);
-		width: 132px;
+		align-items: center;
+		gap: 1px;
+		width: 74px;
 		flex-shrink: 0;
 	}
 
 	.level-silk {
 		font-family: var(--font-silk);
-		font-size: var(--type-silk);
-		letter-spacing: 0.18em;
+		font-size: 0.46rem;
+		letter-spacing: 0.12em;
 		text-transform: uppercase;
 		color: var(--text-label);
+		line-height: 1.1;
 	}
 
-	.level-fader {
+	.knob-scale {
+		position: relative;
 		width: 100%;
-		height: 14px;
-		margin: 0;
-		background: transparent;
-		cursor: pointer;
-		appearance: none;
-		-webkit-appearance: none;
+		height: 42px;
+		margin-top: 2px;
 	}
 
-	.level-fader:disabled {
-		cursor: default;
+	.level-knob {
+		position: absolute;
+		left: 50%;
+		top: 1px;
+		width: 34px;
+		height: 34px;
+		box-sizing: border-box;
+		margin-left: -17px;
+		border: 1px solid var(--btn-border);
+		border-radius: 50%;
+		background: var(--btn-surface-hi);
+		box-shadow:
+			inset 0 1px 0 var(--chassis-panel-hi),
+			inset 0 -2px 0 var(--chassis-groove);
+		transform-origin: center;
 	}
 
-	.level-fader::-webkit-slider-runnable-track {
-		height: 2px;
-		background: linear-gradient(
-			to right,
-			var(--gold-dim) 0 var(--fill),
-			var(--chassis-groove) var(--fill) 100%
-		);
+	.knob-index {
+		position: absolute;
+		top: 3px;
+		left: 50%;
+		width: 1px;
+		height: 9px;
+		background: var(--gold-dim);
+		transform: translateX(-50%);
 	}
 
-	.level-fader::-moz-range-track {
-		height: 2px;
-		background: linear-gradient(
-			to right,
-			var(--gold-dim) 0 var(--fill),
-			var(--chassis-groove) var(--fill) 100%
-		);
+	.scale-mark {
+		position: absolute;
+		bottom: 0;
+		font-family: var(--font-silk);
+		font-size: 0.45rem;
+		color: var(--text-label);
+		line-height: 1;
 	}
 
-	/* Rectangular fader cap, no rounding — same grammar as the transport keys. */
-	.level-fader::-webkit-slider-thumb {
-		appearance: none;
-		-webkit-appearance: none;
-		width: 5px;
-		height: 14px;
-		margin-top: -6px;
-		border: 0;
-		border-radius: 1px;
-		background: var(--btn-text);
+	.scale-mark--zero {
+		left: 4px;
 	}
 
-	.level-fader::-moz-range-thumb {
-		width: 5px;
-		height: 14px;
-		border: 0;
-		border-radius: 1px;
-		background: var(--btn-text);
-	}
-
-	.level-fader:disabled::-webkit-slider-thumb {
-		background: oklch(34% 0.008 260);
-	}
-
-	.level-fader:disabled::-moz-range-thumb {
-		background: oklch(34% 0.008 260);
-	}
-
-	/* The fill has to recede in standby too, or it stays the brightest thing on a dark faceplate. */
-	.level-fader:disabled::-webkit-slider-runnable-track {
-		background: linear-gradient(
-			to right,
-			oklch(30% 0.025 88) 0 var(--fill),
-			var(--chassis-groove) var(--fill) 100%
-		);
-	}
-
-	.level-fader:disabled::-moz-range-track {
-		background: linear-gradient(
-			to right,
-			oklch(30% 0.025 88) 0 var(--fill),
-			var(--chassis-groove) var(--fill) 100%
-		);
-	}
-
-	.level-fader:focus-visible {
-		outline: 2px solid var(--phosphor);
-		outline-offset: 3px;
+	.scale-mark--ten {
+		right: 1px;
 	}
 </style>

@@ -4,6 +4,30 @@ Short entries after each build phase: what shipped, what's still open. Newest fi
 
 ---
 
+## 2026-08-29 — Phase A: faceplate proportion and zoning
+
+**What shipped:**
+
+- Chassis now follows the real 430 × 125 mm enclosure (`aspect-ratio: 430 / 125`, `max-width: 1100px`) with a
+  30/40/30 three-zone faceplate: power/phones/level/AMS at left, tray bezel + display at center, program pad and
+  split transport at right.
+- Header band spans the same tracks (`SONY` / `XA7ES` / `DIGITAL OUT` LED). Bottom rail carries the unit spec
+  string. The display panel sits unchanged inside a static tray bezel with chrome-like inner edge, screw details,
+  and the Compact Disc mark.
+- Track list + search moved out of the faceplate into a temporary full-width panel below the chassis
+  (`TODO(phase-E)`). Zones stack and the aspect ratio is released below 900px.
+- Transport is now three keys: play and pause both call the existing toggle (`TODO(phase-D)`); stop is unchanged;
+  open/close and the numeric pad are inert, focusable placeholders. Level is a static rotary whose pointer
+  mirrors `queue.volume`. Keyboard shortcuts are unchanged.
+
+**What's still open:**
+
+- Phase B materials/finish, Phase D distinct play/pause handlers and rotary drag, Phase E tray loading surface.
+- Shuffle/repeat remain keyboard-only until a later control pass; their VFD indicators still light from queue
+  state.
+
+---
+
 ## 2026-07-31 — Production deploy live
 
 **Production URL:** [https://sony-cd-player.vercel.app/](https://sony-cd-player.vercel.app/)

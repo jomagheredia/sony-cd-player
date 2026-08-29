@@ -1,173 +1,286 @@
 <script lang="ts">
 	import { playback } from '$lib/state/playback.svelte';
 	import { power } from '$lib/state/power.svelte';
-	import { queue } from '$lib/state/queue.svelte';
 
-	const isPlaying = $derived(playback.current.status === 'playing');
 	/* Controls are genuinely inert until the machine has finished warming up. */
 	const inert = $derived(!power.ready);
+	// TODO(phase-D): split play and pause into distinct handlers
+
+	const programKeys: Array<{ label: string; ariaLabel: string } | null> = [
+		{ label: '1', ariaLabel: 'Program track 1' },
+		{ label: '2', ariaLabel: 'Program track 2' },
+		{ label: '3', ariaLabel: 'Program track 3' },
+		{ label: '4', ariaLabel: 'Program track 4' },
+		{ label: '5', ariaLabel: 'Program track 5' },
+		{ label: 'Digital Output', ariaLabel: 'Digital output' },
+		{ label: '6', ariaLabel: 'Program track 6' },
+		{ label: '7', ariaLabel: 'Program track 7' },
+		{ label: '8', ariaLabel: 'Program track 8' },
+		{ label: '9', ariaLabel: 'Program track 9' },
+		{ label: '10', ariaLabel: 'Program track 10' },
+		null,
+		{ label: '11', ariaLabel: 'Program track 11' },
+		{ label: '12', ariaLabel: 'Program track 12' },
+		{ label: 'Check', ariaLabel: 'Check program' },
+		{ label: 'Clear', ariaLabel: 'Clear program' },
+		{ label: '>12', ariaLabel: 'Program track greater than 12' },
+		{ label: 'Play Mode', ariaLabel: 'Play mode' }
+	];
 </script>
 
 <div class="transport">
-	<div class="key-group">
-		<button
-			type="button"
-			class="key"
-			aria-label="Previous track"
-			disabled={inert}
-			onclick={playback.previous}
-		>
-			|◄◄
+	<div class="program-pad" aria-label="Program controls">
+		{#each programKeys as key, index (index)}
+			{#if key}
+				<div class="program-cell">
+					<span class="program-label">{key.label}</span>
+					<button type="button" class="program-key" aria-label={key.ariaLabel} disabled={inert}
+					></button>
+				</div>
+			{:else}
+				<span class="program-cell" aria-hidden="true"></span>
+			{/if}
+		{/each}
+	</div>
+
+	<div class="transport-row">
+		<button type="button" class="eject-key" aria-label="Open or close disc tray" disabled={inert}>
+			<span class="eject-glyph" aria-hidden="true">△</span>
+			<span>Open/Close</span>
 		</button>
+
 		<button
 			type="button"
-			class="key key--primary"
-			aria-label={isPlaying ? 'Pause' : 'Play'}
+			class="transport-key transport-key--play"
+			aria-label="Play"
 			disabled={inert}
 			onclick={playback.toggle}
 		>
-			{isPlaying ? '❙❙' : '►'}
+			<span class="key-dot" aria-hidden="true"></span>
+			<span aria-hidden="true">►</span>
 		</button>
-		<button type="button" class="key" aria-label="Stop" disabled={inert} onclick={playback.stop}>
-			■
-		</button>
+
 		<button
 			type="button"
-			class="key"
-			aria-label="Next track"
+			class="transport-key"
+			aria-label="Pause"
 			disabled={inert}
-			onclick={playback.next}
+			onclick={playback.toggle}
 		>
-			►►|
+			<span class="key-dot" aria-hidden="true"></span>
+			<span aria-hidden="true">❙❙</span>
+		</button>
+
+		<button
+			type="button"
+			class="transport-key"
+			aria-label="Stop"
+			disabled={inert}
+			onclick={playback.stop}
+		>
+			<span class="key-dot" aria-hidden="true"></span>
+			<span aria-hidden="true">■</span>
 		</button>
 	</div>
 
-	<div class="key-group key-group--mode">
-		<button
-			type="button"
-			class="key key--mode"
-			class:toggled={queue.shuffle}
-			aria-label="Shuffle"
-			aria-pressed={queue.shuffle}
-			disabled={inert}
-			onclick={() => queue.toggleShuffle()}
+	<div class="model-mark">
+		<span>Compact Disc Player&nbsp; CDP-</span><span class="model-highlight">XA7</span><span
+			>ES</span
 		>
-			⇌
-		</button>
-		<button
-			type="button"
-			class="key key--mode"
-			class:toggled={queue.repeat !== 'off'}
-			aria-label="Repeat: {queue.repeat}"
-			disabled={inert}
-			onclick={() => queue.cycleRepeat()}
-		>
-			↺{#if queue.repeat === 'track'}<span class="repeat-mode">1</span>{/if}
-		</button>
 	</div>
 </div>
 
 <style>
-	/* Transport sits to the right of POWER, as on the faceplate — one cluster, not two
-	   islands pushed to opposite edges. */
 	.transport {
 		display: flex;
-		align-items: center;
-		justify-content: flex-end;
-		gap: var(--space-lg);
-		flex-wrap: wrap;
-	}
-
-	.key-group {
-		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
 		gap: var(--space-xs);
 		min-width: 0;
 	}
 
-	.key {
-		min-width: 52px;
-		padding: var(--space-sm) var(--space-md);
-		background: var(--btn-surface);
+	.program-pad {
+		display: grid;
+		grid-template-columns: repeat(6, minmax(0, 1fr));
+		column-gap: var(--space-2xs);
+		row-gap: 6px;
+		min-width: 0;
+	}
+
+	.program-cell {
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 3px;
+	}
+
+	.program-label {
+		width: 100%;
+		min-height: 1.1em;
+		overflow: visible;
+		font-family: var(--font-silk);
+		font-size: 0.42rem;
+		line-height: 1.1;
+		letter-spacing: 0.08em;
+		text-align: center;
+		text-transform: uppercase;
+		white-space: nowrap;
+		color: var(--text-label);
+	}
+
+	.program-key {
+		width: 10px;
+		height: 10px;
+		padding: 0;
 		border: 1px solid var(--btn-border);
-		border-radius: var(--radius);
-		color: var(--btn-text);
-		font-family: var(--font-vfd);
-		font-size: 0.9rem;
-		line-height: 1;
+		border-radius: 50%;
+		background: var(--btn-surface-hi);
 		cursor: pointer;
-		box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.03);
+		box-shadow: inset 0 1px 0 var(--chassis-panel-hi);
 		transition:
 			transform 80ms var(--ease-out-quart),
 			background 140ms var(--ease-out-quart),
 			border-color 140ms var(--ease-out-quart);
 	}
 
-	/* Play is the one key that matters most — wider face, brighter text. */
-	.key--primary {
-		min-width: 86px;
+	.transport-row {
+		display: flex;
+		align-items: stretch;
+		gap: var(--space-2xs);
+		min-width: 0;
+	}
+
+	.eject-key,
+	.transport-key {
+		position: relative;
+		height: 38px;
+		min-width: 44px;
+		padding: 0 var(--space-xs);
+		background: var(--btn-surface);
+		border: 1px solid var(--btn-border);
+		border-radius: var(--radius);
+		color: var(--btn-text);
+		font-family: var(--font-vfd);
+		font-size: 0.8rem;
+		line-height: 1;
+		cursor: pointer;
+		box-shadow: inset 0 1px 0 var(--chassis-panel-hi);
+		transition:
+			transform 80ms var(--ease-out-quart),
+			background 140ms var(--ease-out-quart),
+			border-color 140ms var(--ease-out-quart);
+	}
+
+	.eject-key {
+		width: 52px;
+		flex-shrink: 0;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 2px;
+		padding-inline: var(--space-2xs);
+		font-family: var(--font-silk);
+		font-size: 0.42rem;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+	}
+
+	.eject-glyph {
+		font-size: 0.58rem;
+	}
+
+	.transport-key {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex: 0 1 50px;
+	}
+
+	.transport-key--play {
+		flex: 1 1 82px;
 		background: var(--btn-surface-hi);
 		color: var(--text-secondary);
 	}
 
-	.key--mode {
-		min-width: 44px;
-		font-size: 0.8rem;
+	.key-dot {
+		position: absolute;
+		top: 7px;
+		left: 7px;
+		width: 3px;
+		height: 3px;
+		border-radius: 50%;
+		background: var(--btn-border);
 	}
 
-	.key:hover:not(:disabled) {
+	.program-key:hover:not(:disabled),
+	.eject-key:hover:not(:disabled),
+	.transport-key:hover:not(:disabled) {
 		background: var(--btn-surface-hi);
 		border-color: var(--text-label);
 	}
 
-	.key--primary:hover:not(:disabled) {
-		background: oklch(30% 0.007 260);
-	}
-
-	.key:active:not(:disabled) {
+	.program-key:active:not(:disabled),
+	.eject-key:active:not(:disabled),
+	.transport-key:active:not(:disabled) {
 		transform: scale(0.96);
 	}
 
-	.key:focus-visible {
+	.program-key:focus-visible,
+	.eject-key:focus-visible,
+	.transport-key:focus-visible {
 		outline: 2px solid var(--phosphor);
 		outline-offset: 2px;
 	}
 
-	.key:disabled {
+	.program-key:disabled,
+	.eject-key:disabled,
+	.transport-key:disabled {
 		cursor: default;
-		color: oklch(38% 0.008 260);
-		border-color: oklch(24% 0.007 260);
-		background: oklch(16% 0.005 260);
+		color: var(--chassis-edge);
+		border-color: var(--chassis-panel-hi);
+		background: var(--chassis-bg);
 		box-shadow: none;
 	}
 
-	.key.toggled:not(:disabled) {
-		color: var(--btn-active);
-		border-color: var(--btn-active);
+	.model-mark {
+		align-self: flex-end;
+		font-family: var(--font-silk);
+		font-size: 0.44rem;
+		line-height: 1;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		white-space: nowrap;
+		color: var(--text-label);
 	}
 
-	.repeat-mode {
-		font-size: 0.6rem;
-		vertical-align: super;
+	.model-highlight {
+		font-size: 0.58rem;
+		color: var(--text-secondary);
 	}
 
-	@media (max-width: 720px) {
+	@media (max-width: 900px) {
 		.transport {
-			gap: var(--space-sm);
+			width: min(100%, 400px);
 		}
 
-		.key {
-			flex: 1;
-			min-width: 44px;
-			padding: var(--space-sm) var(--space-xs);
+		.program-pad,
+		.transport-row {
+			width: 100%;
 		}
+	}
 
-		.key-group {
-			flex: 1 1 auto;
+	@media (max-width: 420px) {
+		.program-label {
+			font-size: 0.38rem;
 		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.key {
+		.program-key,
+		.eject-key,
+		.transport-key {
 			transition: none;
 		}
 	}

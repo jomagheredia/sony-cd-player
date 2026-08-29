@@ -55,35 +55,37 @@ cavity is a hero object rather than a text column, which is why that one step is
 ## Layout
 
 The machine is a viewport-filling instrument: `.stage` centers it in a darker surround (`--chassis-void`) so the
-faceplate sits _in_ the page rather than on it. Max width 1200px, wide-and-short like the real component.
+faceplate sits _in_ the page rather than on it. The chassis has a max width of 1100px and follows the real
+430 × 125 mm enclosure with `aspect-ratio: 430 / 125`.
 
 ```
-┌────────────────────────────────────────────────────────────────────┐
-│  SONY              XA7ES                              DIGITAL OUT  │
-│                CURRENT PULSE D/A CONVERT SYSTEM                    │
-│ ┌──────────────────────────────────┐ ┌───────────────────────────┐ │
-│ │ SHUFFLE REPEAT REPEAT 1     PLAY │ │ TRACK LIST          05 TR │ │
-│ │ TRACK 01                         │ │ ▸ 01 Nocturne...    04:31 │ │
-│ │ Nocturne in E Flat Major, Op. 9  │ │   02 So What        09:24 │ │
-│ │ dB  -40   -30   -20  -10  -3     │ │   03 Blue Rondo...  04:09 │ │
-│ │ L ▮▮▮▮▮▮▮▮▯▯▯▯▯▯                 │ │ ───────────────────────── │ │
-│ │ R ▮▮▮▮▮▮▯▯▯▯▯▯▯▯                 │ │ [SEARCH ARCHIVE.ORG][SRCH]│ │
-│ │ 02:47 ──────●──────────── 05:12  │ └───────────────────────────┘ │
-│ └──────────────────────────────────┘                               │
-│ ┌──┐▪  LINE OUT LEVEL                                              │
-│ │⏻ │   ───────●────      |◄◄  ►  ■  ►►|          ⇌  ↺              │
-│ └──┘                                                               │
-│ POWER                                                              │
-│ COMPACT DISC DIGITAL AUDIO         COMPACT DISC PLAYER  CDP-XA7ES  │
-└────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────┐
+│ SONY                   XA7ES                                  DIGITAL OUT  │
+│              CURRENT PULSE D/A CONVERT SYSTEM                       •     │
+├──────────────────────┬─────────────────────────────┬───────────────────────┤
+│ [POWER] ▪            │ ┌─────────────────────────┐ │ 1  2  3  4  5  D.OUT │
+│ ⌐ON  ⌐OFF            │ │ SHUFFLE REPEAT     PLAY│ │ •  •  •  •  •    •   │
+│ ○ PHONES   LINE OUT  │ │ TRACK 01               │ │ 6  7  8  9 10        │
+│             ◯ LEVEL  │ │ dB  L ▮▮▮▮▮▯▯ R ▮▮▮▯ │ │ •  •  •  •  •        │
+│ [◄◄] [►►]            │ │ 02:47 ───────── 05:12  │ │ [OPEN] [►] [❙❙] [■] │
+│    AMS                │ └─────────────────────────┘ │ COMPACT DISC CDP-XA7ES│
+│ [|◄◄] [►►|]          │ COMPACT DISC DIGITAL AUDIO │                       │
+├──────────────────────┴─────────────────────────────┴───────────────────────┤
+│ CURRENT PULSE D/A CONVERTER · 2Hz–20kHz ±0.3dB · 119dB S/N · 0.0015% THD │
+└────────────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────┐
+│ TRACK LIST + SEARCH — temporary external panel                            │
+└────────────────────────────────────────────────────────────────────────────┘
 ```
 
-The deck is a two-column grid using `minmax(0, 1.35fr) minmax(0, 1fr)`. The `minmax(0, …)` is load-bearing:
-archive.org titles run past 100 characters and without it a long title steals width from the display cavity and
-crushes it. Single column below 900px; the control band stacks below 720px; edge-to-edge below 420px.
+The faceplate body is a three-column grid using `minmax(0, 3fr) minmax(0, 4fr) minmax(0, 3fr)`: power, phones,
+level and AMS at left; the display inside the tray bezel at center; program and transport controls at right.
+The header follows the same tracks. `minmax(0, …)` remains load-bearing because archive.org titles can run past
+100 characters. Below 900px the aspect ratio is released and the zones stack; the compact header treatment
+continues below 720px and the chassis is edge-to-edge below 420px.
 
-POWER sits at the far left and the transport cluster at the right, as on the faceplate. The LINE OUT level
-control fills the band between them — volume was always adjustable with `↑`/`↓` but had no visible state.
+The track list remains fully functional but sits in a temporary full-width panel below the chassis. Phase E
+replaces it with the tray loading surface.
 
 ---
 
@@ -94,7 +96,7 @@ genuinely `disabled`. Pressing POWER runs the warm-up. State lives in `src/lib/s
 
 | Phase       | Window    | What happens                                                                                                             |
 | ----------- | --------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `standby`   | —         | Cavity black, `--segment-off-live: transparent` so unlit segments vanish, deck at 50% opacity.                           |
+| `standby`   | —         | Cavity black, `--segment-off-live: transparent` so unlit segments vanish, faceplate zones at 50% opacity except POWER.   |
 | `energize`  | 0–180ms   | Filament bloom overshoots and settles; no glyphs yet.                                                                    |
 | `self-test` | 180–880ms | Every segment strikes L→R, 22ms apart, R offset 70ms. Glyphs read `TRACK 88`, `88:88`, all indicators lit, badge `TEST`. |
 | `on`        | 880ms+    | Real values. Controls become live.                                                                                       |
@@ -158,8 +160,8 @@ Simulated VFD cavity: `box-shadow: inset 0 0 24px oklch(0% 0 0 / 0.85), 0 0 10px
 Rows:
 
 1. Indicator strip: `SHUFFLE` / `REPEAT` / `REPEAT 1` left, status badge right. The indicators are lit/unlit
-   silkscreen driven by queue state — the period-correct place for mode state. They are `aria-hidden`; the
-   transport buttons carry `aria-pressed` so assistive tech is told once, not twice.
+   silkscreen driven by queue state — the period-correct place for mode state. They are `aria-hidden`; keyboard
+   shortcuts still toggle shuffle/repeat even though those keys are no longer on the faceplate.
 2. `TRACK` silkscreen label + track number in `'DSEG7 Classic'`
 3. Track title, `'Share Tech Mono'` — scrolls only when it overruns the cavity, and only by the measured
    overflow: dwell, walk to the end at ~38 px/s, dwell, snap back. One string on screen at all times; never a
@@ -198,16 +200,17 @@ assistive tech agree with what the eye sees. The global keydown handler returns 
 Hierarchy: POWER has the lightest face on the faceplate (in standby it is the only live control). Play is wider
 than its neighbours with brighter text. Mode keys are the smallest. Not every key is primary.
 
-| Control        | Glyph      | Behavior                                                                                           |
-| -------------- | ---------- | -------------------------------------------------------------------------------------------------- |
-| Power          | `⏻`        | Toggle standby ⇄ on. Runs the ceremony, unlocks audio, stops playback on off. Amber pilot when on. |
-| Line out level | —          | Horizontal fader, rectangular cap, 0–100%. Mirrors the `↑`/`↓` shortcuts.                          |
-| Previous       | `          | ◄◄`                                                                                                | Previous track, or seek to 0 if past 3s |
-| Play/Pause     | `►` / `❙❙` | Toggle                                                                                             |
-| Stop           | `■`        | Stop and reset position                                                                            |
-| Next           | `►►        | `                                                                                                  | Advance queue                           |
-| Shuffle        | `⇌`        | Toggle                                                                                             |
-| Repeat         | `↺`        | Cycle off → track → all                                                                            |
+| Control        | Glyph           | Behavior                                                                               |
+| -------------- | --------------- | -------------------------------------------------------------------------------------- |
+| Power          | `POWER`         | Toggle standby ⇄ on. Runs the ceremony, unlocks audio, stops playback on off.          |
+| Line out level | rotary          | Static Phase A control whose pointer mirrors the current volume and `↑`/`↓` shortcuts. |
+| Scan           | `◄◄` / `►►`     | Seek backward/forward 5 seconds through the existing seek handler.                     |
+| Previous/next  | `\|◄◄` / `►►\|` | Preserve the existing previous/next behavior.                                          |
+| Play           | `►`             | Calls the existing play/pause toggle until Phase D splits the handlers.                |
+| Pause          | `❙❙`            | Calls the existing play/pause toggle until Phase D splits the handlers.                |
+| Stop           | `■`             | Stop and reset position.                                                               |
+| Open/close     | `△`             | Inert placeholder until tray behavior lands.                                           |
+| Program pad    | round keys      | Inert, focusable placeholders for numeric/program functions.                           |
 
 Geometric Unicode only. No emoji.
 
@@ -215,9 +218,9 @@ Geometric Unicode only. No emoji.
 
 ## Track list
 
-A recessed well in the chassis (`--chassis-groove` with an inset shadow), not a card. Header carries the panel
-label and a track count (`05 TR`). Max-height 232px, min-height 168px so the panel does not collapse when empty,
-2px gold scrollbar.
+A recessed well in a temporary full-width panel below the chassis (`--chassis-groove` with an inset shadow), not
+a card. Header carries the panel label and a track count (`05 TR`). Max-height 232px, min-height 168px so the panel
+does not collapse when empty, 2px gold scrollbar.
 
 Each row:
 
@@ -267,11 +270,12 @@ Input plus a `SEARCH` key at the bottom of the track list panel.
 
 ## Branding
 
-- Top-left `SONY`, `--text-label`, `letter-spacing: 0.3em`, small caps
-- Top-right `CDP-XA7ES`, `'Share Tech Mono'`, same color, smaller
-- Bottom edge, centered, 8px: `COMPACT DISC DIGITAL AUDIO`
-
-Nothing else.
+- Header left: `SONY`, `--text-label`, raised-lettering treatment
+- Header center: `XA7ES` in gold with `CURRENT PULSE D/A CONVERT SYSTEM` beneath
+- Header right: `DIGITAL OUT` with its LED dot
+- Tray bezel: centered `COMPACT DISC DIGITAL AUDIO`
+- Right zone: `COMPACT DISC PLAYER CDP-XA7ES`, with `XA7` larger than its surrounding text
+- Bottom rail: the unit specification string
 
 ---
 
