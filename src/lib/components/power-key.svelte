@@ -5,7 +5,7 @@
 </script>
 
 <div class="power-cluster">
-	<div class="power-stack">
+	<div class="power-row">
 		<button
 			type="button"
 			class="power-key"
@@ -14,38 +14,37 @@
 			aria-pressed={isOn}
 			onclick={() => power.toggle()}
 		>
-			<span class="power-pilot" aria-hidden="true"></span>
-			<span class="power-glyph" aria-hidden="true">⏻</span>
+			POWER
 		</button>
-		<span class="power-silk">POWER</span>
+
+		<!-- The gold block sits beside POWER on the real faceplate: ES-series marking, not ornament. -->
+		<span class="gold-block" aria-hidden="true"></span>
 	</div>
 
-	<!-- The gold block sits beside POWER on the real faceplate: ES-series marking, not ornament. -->
-	<span class="gold-block" aria-hidden="true"></span>
+	<span class="power-silk">⌐ON&nbsp;&nbsp;⌐OFF</span>
 </div>
 
 <style>
 	.power-cluster {
 		display: flex;
-		align-items: start;
-		gap: var(--space-sm);
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--space-2xs);
 		flex-shrink: 0;
 	}
 
-	.power-stack {
+	.power-row {
 		display: flex;
-		flex-direction: column;
 		align-items: center;
-		gap: var(--space-2xs);
+		gap: var(--space-sm);
 	}
 
 	.power-key {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		gap: var(--space-xs);
 		width: 56px;
-		height: 30px;
+		height: 32px;
 		padding: 0;
 		cursor: pointer;
 		border: 1px solid var(--btn-border);
@@ -53,6 +52,10 @@
 		/* Lighter face than any other control — in standby this is the only live thing. */
 		background: var(--btn-surface-hi);
 		box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.04);
+		color: var(--btn-text);
+		font-family: var(--font-silk);
+		font-size: 0.5rem;
+		letter-spacing: 0.08em;
 		transition:
 			transform 80ms var(--ease-out-quart),
 			background 160ms var(--ease-out-quart),
@@ -73,27 +76,14 @@
 		outline-offset: 3px;
 	}
 
-	.power-glyph {
-		color: var(--btn-text);
-		font-size: 0.8rem;
-		line-height: 1;
-	}
-
-	.power-pilot {
-		width: 5px;
-		height: 5px;
-		background: var(--segment-off);
-		transition: background 300ms var(--ease-out-quart);
-	}
-
-	.power-key.on .power-pilot {
-		background: var(--phosphor);
+	.power-key.on {
+		border-color: var(--gold-dim);
 	}
 
 	.power-silk {
 		font-family: var(--font-silk);
-		font-size: var(--type-silk);
-		letter-spacing: 0.18em;
+		font-size: 0.45rem;
+		letter-spacing: 0.08em;
 		color: var(--text-label);
 		text-transform: uppercase;
 	}
@@ -101,15 +91,13 @@
 	.gold-block {
 		width: 14px;
 		height: 18px;
-		margin-top: 6px;
 		background: var(--gold-dim);
 		border-top: 1px solid var(--gold);
 		border-radius: 1px;
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.power-key,
-		.power-pilot {
+		.power-key {
 			transition: none;
 		}
 	}

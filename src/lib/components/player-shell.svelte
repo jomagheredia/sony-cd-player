@@ -7,6 +7,7 @@
 	import { playback } from '$lib/state/playback.svelte';
 	import { power } from '$lib/state/power.svelte';
 	import { queue } from '$lib/state/queue.svelte';
+	import AmsControls from './ams-controls.svelte';
 	import DisplayPanel from './display-panel.svelte';
 	import LevelControl from './level-control.svelte';
 	import PowerKey from './power-key.svelte';
@@ -101,30 +102,65 @@
 </svelte:head>
 
 <div class="stage">
-	<div class="machine" data-phase={phase}>
-		<div class="rail rail--top">
-			<span class="brand-sony">Sony</span>
-			<span class="brand-series">
-				<span class="series-name">XA7ES</span>
-				<span class="series-sub">Current Pulse D/A Convert System</span>
-			</span>
-			<span class="rail-silk rail-silk--end">Digital Out</span>
+	<div class="player-stack">
+		<div class="machine" data-phase={phase}>
+			<header class="header-band">
+				<div class="header-cell header-cell--left">
+					<span class="brand-sony">Sony</span>
+				</div>
+				<div class="header-cell header-cell--center">
+					<span class="brand-series">
+						<span class="series-name">XA7ES</span>
+						<span class="series-sub">Current Pulse D/A Convert System</span>
+					</span>
+				</div>
+				<div class="header-cell header-cell--right">
+					<span class="digital-label">Digital Out</span>
+					<span class="digital-led" aria-hidden="true"></span>
+				</div>
+			</header>
+
+			<div class="faceplate-grid">
+				<section class="faceplate-zone left-zone" aria-label="Power and navigation controls">
+					<PowerKey />
+
+					<div class="left-service-row">
+						<div class="phones">
+							<span class="phones-jack" aria-hidden="true"></span>
+							<span class="zone-silk">Phones</span>
+						</div>
+						<LevelControl />
+					</div>
+
+					<AmsControls />
+				</section>
+
+				<section class="faceplate-zone center-zone" aria-label="Disc display">
+					<div class="tray-bezel">
+						<span class="bezel-screw bezel-screw--left" aria-hidden="true"></span>
+						<div class="tray-window">
+							<DisplayPanel />
+						</div>
+						<span class="disc-mark">Compact Disc Digital Audio</span>
+						<span class="bezel-screw bezel-screw--right" aria-hidden="true"></span>
+					</div>
+				</section>
+
+				<section class="faceplate-zone right-zone" aria-label="Program and transport controls">
+					<TransportControls />
+				</section>
+			</div>
+
+			<footer class="rail rail--bottom">
+				<span class="rail-silk">
+					Current Pulse D/A Converter · 2Hz–20kHz ±0.3dB · 119dB S/N · 0.0015% THD
+				</span>
+			</footer>
 		</div>
 
-		<div class="deck">
-			<DisplayPanel />
+		<div class="track-panel">
+			<!-- // TODO(phase-E): replaced by the tray loading surface -->
 			<TrackList />
-		</div>
-
-		<div class="control-band">
-			<PowerKey />
-			<LevelControl />
-			<TransportControls />
-		</div>
-
-		<div class="rail rail--bottom">
-			<span class="rail-silk">Compact Disc Digital Audio</span>
-			<span class="rail-silk rail-silk--end">Compact Disc Player &nbsp;CDP-XA7ES</span>
 		</div>
 	</div>
 </div>
@@ -148,20 +184,28 @@
 		box-sizing: border-box;
 	}
 
+	.player-stack {
+		width: 100%;
+		max-width: 1100px;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-md);
+	}
+
 	.machine {
 		position: relative;
 		isolation: isolate;
 		width: 100%;
-		max-width: 1200px;
+		aspect-ratio: 430 / 125;
 		box-sizing: border-box;
 		font-family: var(--font-silk);
 		background: var(--chassis-panel);
 		border: 1px solid var(--chassis-edge);
 		border-radius: var(--radius);
-		padding: var(--space-lg) var(--space-xl) var(--space-md);
-		display: flex;
-		flex-direction: column;
-		gap: var(--space-lg);
+		padding: var(--space-sm) var(--space-md) var(--space-xs);
+		display: grid;
+		grid-template-rows: auto minmax(0, 1fr) auto;
+		gap: var(--space-xs);
 		/* Top bevel catches light, and the unit sits on a surface rather than floating. */
 		box-shadow:
 			inset 0 1px 0 var(--chassis-panel-hi),
@@ -185,15 +229,27 @@
 		);
 	}
 
-	.rail {
-		display: flex;
-		align-items: baseline;
-		justify-content: space-between;
-		gap: var(--space-md);
+	.header-band,
+	.faceplate-grid {
+		display: grid;
+		grid-template-columns: minmax(0, 3fr) minmax(0, 4fr) minmax(0, 3fr);
+		column-gap: var(--space-sm);
 	}
 
-	.rail--top {
-		align-items: start;
+	.header-cell {
+		min-width: 0;
+		display: flex;
+		align-items: flex-start;
+	}
+
+	.header-cell--center {
+		justify-content: center;
+	}
+
+	.header-cell--right {
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 3px;
 	}
 
 	.brand-sony {
@@ -203,7 +259,9 @@
 		letter-spacing: 0.22em;
 		text-transform: uppercase;
 		color: var(--text-secondary);
-		flex: 1;
+		text-shadow:
+			0 1px 0 var(--chassis-groove),
+			0 -1px 0 var(--chassis-panel-hi);
 	}
 
 	.brand-series {
@@ -230,6 +288,7 @@
 		color: var(--text-label);
 	}
 
+	.digital-label,
 	.rail-silk {
 		font-family: var(--font-silk);
 		font-size: var(--type-silk);
@@ -238,46 +297,189 @@
 		color: var(--text-label);
 	}
 
-	.rail--top .rail-silk--end {
-		flex: 1;
-		text-align: right;
+	.digital-led {
+		width: 4px;
+		height: 4px;
+		border-radius: 50%;
+		border: 1px solid var(--chassis-edge);
+		background: var(--chassis-groove);
 	}
 
-	.deck {
-		display: grid;
-		/* minmax(0, ...) is what keeps a 100-character archive.org title from
-		   stealing width from the display cavity. */
-		grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-		gap: var(--space-lg);
-		align-items: start;
+	.faceplate-grid {
+		min-height: 0;
 		transition: opacity 420ms var(--ease-out-quart);
 	}
 
-	/* Powered down, the deck recedes; POWER stays at full contrast as the only live control. */
-	.machine[data-phase='standby'] .deck {
+	/* Powered down, the controls recede; POWER stays at full contrast as the only live control. */
+	.machine[data-phase='standby'] .faceplate-grid {
 		opacity: 0.5;
 	}
 
-	.control-band {
-		display: flex;
-		align-items: center;
-		gap: var(--space-xl);
-		padding-top: var(--space-xs);
-		border-top: 1px solid var(--chassis-groove);
+	.faceplate-zone {
+		min-width: 0;
+		min-height: 0;
 	}
 
-	.control-band :global(.transport) {
-		flex: 1;
+	.left-zone {
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		gap: var(--space-xs);
+		padding: var(--space-xs) var(--space-sm) var(--space-xs) 0;
+	}
+
+	.left-service-row {
+		display: grid;
+		grid-template-columns: minmax(84px, auto) minmax(0, 1fr);
+		align-items: end;
+		gap: var(--space-md);
+	}
+
+	.phones {
+		display: flex;
+		align-items: center;
+		gap: var(--space-xs);
+	}
+
+	.phones-jack {
+		width: 18px;
+		height: 18px;
+		flex-shrink: 0;
+		box-sizing: border-box;
+		border: 3px solid var(--gold-dim);
+		border-radius: 50%;
+		background: var(--chassis-groove);
+		box-shadow: 0 0 0 1px var(--chassis-edge);
+	}
+
+	.zone-silk,
+	.disc-mark {
+		font-family: var(--font-silk);
+		font-size: var(--type-silk);
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		color: var(--text-label);
+	}
+
+	.center-zone {
+		display: flex;
+		align-items: stretch;
+		padding-block: var(--space-2xs);
+	}
+
+	.tray-bezel {
+		position: relative;
+		width: 100%;
+		min-width: 0;
+		min-height: 0;
+		box-sizing: border-box;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		gap: var(--space-2xs);
+		padding: var(--space-xs) var(--space-lg) var(--space-2xs);
+		border: 1px solid var(--chassis-edge);
+		box-shadow:
+			inset 0 0 0 2px var(--chassis-groove),
+			inset 0 1px 0 3px var(--chassis-panel-hi);
+	}
+
+	.tray-window {
+		min-width: 0;
+	}
+
+	.tray-window :global(.display) {
+		width: 100%;
+	}
+
+	.disc-mark {
+		align-self: center;
+		font-size: 0.48rem;
+		letter-spacing: 0.08em;
+		white-space: nowrap;
+	}
+
+	.bezel-screw {
+		position: absolute;
+		top: 50%;
+		width: 6px;
+		height: 6px;
+		box-sizing: border-box;
+		border-radius: 50%;
+		border: 1px solid var(--chassis-edge);
+		background: var(--chassis-groove);
+		transform: translateY(-50%);
+	}
+
+	.bezel-screw--left {
+		left: 6px;
+	}
+
+	.bezel-screw--right {
+		right: 6px;
+	}
+
+	.right-zone {
+		padding: var(--space-2xs) 0 var(--space-xs) var(--space-sm);
+	}
+
+	.right-zone :global(.transport) {
+		height: 100%;
+	}
+
+	.rail {
+		display: flex;
+		align-items: baseline;
 	}
 
 	.rail--bottom {
 		border-top: 1px solid var(--chassis-groove);
-		padding-top: var(--space-xs);
+		padding-top: var(--space-2xs);
+	}
+
+	.rail--bottom .rail-silk {
+		font-size: 0.48rem;
+		letter-spacing: 0.1em;
+		white-space: nowrap;
+	}
+
+	.track-panel {
+		width: 100%;
+		box-sizing: border-box;
+		padding: var(--space-md);
+		background: var(--chassis-panel);
+		border: 1px solid var(--chassis-edge);
+		border-radius: var(--radius);
+		box-shadow:
+			inset 0 1px 0 var(--chassis-panel-hi),
+			inset 0 -1px 0 var(--chassis-groove);
 	}
 
 	@media (max-width: 900px) {
-		.deck {
+		.machine {
+			aspect-ratio: auto;
+		}
+
+		.faceplate-grid {
 			grid-template-columns: minmax(0, 1fr);
+			row-gap: var(--space-lg);
+		}
+
+		.left-zone,
+		.right-zone {
+			padding: var(--space-sm) 0;
+		}
+
+		.left-zone {
+			min-height: 220px;
+		}
+
+		.center-zone {
+			min-height: 260px;
+		}
+
+		.right-zone :global(.transport) {
+			min-height: 230px;
 		}
 	}
 
@@ -287,18 +489,26 @@
 			gap: var(--space-md);
 		}
 
-		.control-band {
-			flex-direction: column;
-			align-items: stretch;
-			gap: var(--space-md);
+		.header-band {
+			grid-template-columns: minmax(0, 1fr) auto;
 		}
 
 		.brand-series {
 			align-items: end;
+			text-align: right;
 		}
 
-		.rail--top .rail-silk--end {
+		.header-cell--right {
 			display: none;
+		}
+
+		.left-service-row {
+			grid-template-columns: minmax(84px, 0.7fr) minmax(0, 1fr);
+		}
+
+		.rail--bottom .rail-silk {
+			white-space: normal;
+			line-height: 1.5;
 		}
 	}
 
@@ -313,13 +523,14 @@
 			min-height: 100dvh;
 		}
 
-		.rail--bottom .rail-silk--end {
-			display: none;
+		.track-panel {
+			border-inline: 0;
+			border-radius: 0;
 		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.deck {
+		.faceplate-grid {
 			transition-duration: 120ms;
 		}
 	}
