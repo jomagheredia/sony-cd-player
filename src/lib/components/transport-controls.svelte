@@ -12,7 +12,7 @@
 		{ label: '3', ariaLabel: 'Program track 3' },
 		{ label: '4', ariaLabel: 'Program track 4' },
 		{ label: '5', ariaLabel: 'Program track 5' },
-		{ label: 'Digital Output', ariaLabel: 'Digital output' },
+		{ label: 'Digital\nOutput', ariaLabel: 'Digital output' },
 		{ label: '6', ariaLabel: 'Program track 6' },
 		{ label: '7', ariaLabel: 'Program track 7' },
 		{ label: '8', ariaLabel: 'Program track 8' },
@@ -24,7 +24,7 @@
 		{ label: 'Check', ariaLabel: 'Check program' },
 		{ label: 'Clear', ariaLabel: 'Clear program' },
 		{ label: '>12', ariaLabel: 'Program track greater than 12' },
-		{ label: 'Play Mode', ariaLabel: 'Play mode' }
+		{ label: 'Play\nMode', ariaLabel: 'Play mode' }
 	];
 </script>
 
@@ -44,12 +44,10 @@
 	</div>
 
 	<div class="transport-row">
-		<div class="eject-block">
-			<button type="button" class="eject-key" aria-label="Open or close disc tray" disabled={inert}>
-				<span class="eject-glyph" aria-hidden="true">△</span>
-			</button>
+		<button type="button" class="eject-key" aria-label="Open or close disc tray" disabled={inert}>
+			<span class="eject-glyph" aria-hidden="true">△</span>
 			<span class="eject-label">Open/Close</span>
-		</div>
+		</button>
 
 		<div class="main-transport">
 			<button
@@ -100,8 +98,8 @@
 	.program-pad {
 		display: grid;
 		grid-template-columns: repeat(6, minmax(0, 1fr));
-		column-gap: var(--space-2xs);
-		row-gap: 6px;
+		column-gap: 2px;
+		row-gap: 5px;
 		min-width: 0;
 	}
 
@@ -110,20 +108,20 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 3px;
+		gap: 2px;
 	}
 
 	.program-label {
 		width: 100%;
-		min-height: 1.1em;
-		overflow: visible;
+		min-height: 2.2em;
+		overflow: hidden;
 		font-family: var(--font-silk);
-		font-size: 0.42rem;
-		line-height: 1.1;
-		letter-spacing: 0.08em;
+		font-size: 0.36rem;
+		line-height: 1.05;
+		letter-spacing: 0.04em;
 		text-align: center;
 		text-transform: uppercase;
-		white-space: nowrap;
+		white-space: pre-line;
 		color: var(--text-label);
 	}
 
@@ -145,24 +143,16 @@
 	.transport-row {
 		display: flex;
 		align-items: stretch;
-		gap: var(--space-sm);
+		gap: var(--space-md);
 		min-width: 0;
-	}
-
-	.eject-block {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 2px;
-		flex-shrink: 0;
 	}
 
 	.eject-label {
 		font-family: var(--font-silk);
-		font-size: 0.42rem;
-		letter-spacing: 0.04em;
+		font-size: 0.28rem;
+		letter-spacing: 0.02em;
 		text-transform: uppercase;
-		color: var(--text-label);
+		color: inherit;
 		line-height: 1;
 		white-space: nowrap;
 	}
@@ -197,16 +187,21 @@
 	}
 
 	.eject-key {
-		width: 34px;
-		min-width: 34px;
-		padding: 0;
+		width: 38px;
+		min-width: 38px;
+		height: 34px;
+		padding: 2px 1px 3px;
 		display: flex;
+		flex-direction: column;
 		align-items: center;
 		justify-content: center;
+		gap: 1px;
+		flex-shrink: 0;
 	}
 
 	.eject-glyph {
-		font-size: 0.58rem;
+		font-size: 0.48rem;
+		line-height: 1;
 	}
 
 	.transport-key {
@@ -275,7 +270,7 @@
 
 	@media (max-width: 420px) {
 		.program-label {
-			font-size: 0.38rem;
+			font-size: 0.32rem;
 		}
 	}
 

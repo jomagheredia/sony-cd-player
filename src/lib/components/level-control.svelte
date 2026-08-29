@@ -8,7 +8,6 @@
 
 <div class="level" role="img" aria-label="Line out and phone level: {percent} percent">
 	<span class="level-silk">Line Out</span>
-	<span class="level-silk">Phone Level</span>
 	<div class="knob-scale" aria-hidden="true">
 		<span class="scale-mark scale-mark--zero">0</span>
 		<div class="level-knob" style:transform="rotate({angle}deg)">
@@ -16,6 +15,7 @@
 		</div>
 		<span class="scale-mark scale-mark--ten">10</span>
 	</div>
+	<span class="level-silk">Phone Level</span>
 </div>
 
 <style>
@@ -24,34 +24,35 @@
 		flex-direction: column;
 		align-items: center;
 		gap: 1px;
-		width: 74px;
+		width: 68px;
 		flex-shrink: 0;
 	}
 
 	.level-silk {
 		font-family: var(--font-silk);
-		font-size: 0.46rem;
-		letter-spacing: 0.12em;
+		font-size: 0.42rem;
+		letter-spacing: 0.08em;
 		text-transform: uppercase;
 		color: var(--text-label);
 		line-height: 1.1;
+		white-space: nowrap;
 	}
 
 	.knob-scale {
 		position: relative;
 		width: 100%;
-		height: 42px;
-		margin-top: 2px;
+		height: 36px;
+		margin-block: 1px;
 	}
 
 	.level-knob {
 		position: absolute;
 		left: 50%;
-		top: 1px;
-		width: 34px;
-		height: 34px;
+		top: 0;
+		width: 32px;
+		height: 32px;
 		box-sizing: border-box;
-		margin-left: -17px;
+		margin-left: -16px;
 		border: 1px solid var(--btn-border);
 		border-radius: 50%;
 		background: var(--btn-surface-hi);
@@ -75,16 +76,16 @@
 		position: absolute;
 		bottom: 0;
 		font-family: var(--font-silk);
-		font-size: 0.45rem;
+		font-size: 0.42rem;
 		color: var(--text-label);
 		line-height: 1;
 	}
 
 	.scale-mark--zero {
-		left: 4px;
+		left: 0;
 	}
 
 	.scale-mark--ten {
-		right: 1px;
+		right: 0;
 	}
 </style>
