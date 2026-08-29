@@ -44,59 +44,57 @@
 	</div>
 
 	<div class="transport-row">
-		<button type="button" class="eject-key" aria-label="Open or close disc tray" disabled={inert}>
-			<span class="eject-glyph" aria-hidden="true">△</span>
-			<span>Open/Close</span>
-		</button>
+		<div class="eject-block">
+			<button type="button" class="eject-key" aria-label="Open or close disc tray" disabled={inert}>
+				<span class="eject-glyph" aria-hidden="true">△</span>
+			</button>
+			<span class="eject-label">Open/Close</span>
+		</div>
 
-		<button
-			type="button"
-			class="transport-key transport-key--play"
-			aria-label="Play"
-			disabled={inert}
-			onclick={playback.toggle}
-		>
-			<span class="key-dot" aria-hidden="true"></span>
-			<span aria-hidden="true">►</span>
-		</button>
+		<div class="main-transport">
+			<button
+				type="button"
+				class="transport-key transport-key--play"
+				aria-label="Play"
+				disabled={inert}
+				onclick={playback.toggle}
+			>
+				<span class="key-dot" aria-hidden="true"></span>
+				<span aria-hidden="true">►</span>
+			</button>
 
-		<button
-			type="button"
-			class="transport-key"
-			aria-label="Pause"
-			disabled={inert}
-			onclick={playback.toggle}
-		>
-			<span class="key-dot" aria-hidden="true"></span>
-			<span aria-hidden="true">❙❙</span>
-		</button>
+			<button
+				type="button"
+				class="transport-key"
+				aria-label="Pause"
+				disabled={inert}
+				onclick={playback.toggle}
+			>
+				<span class="key-dot" aria-hidden="true"></span>
+				<span aria-hidden="true">❙❙</span>
+			</button>
 
-		<button
-			type="button"
-			class="transport-key"
-			aria-label="Stop"
-			disabled={inert}
-			onclick={playback.stop}
-		>
-			<span class="key-dot" aria-hidden="true"></span>
-			<span aria-hidden="true">■</span>
-		</button>
-	</div>
-
-	<div class="model-mark">
-		<span>Compact Disc Player&nbsp; CDP-</span><span class="model-highlight">XA7</span><span
-			>ES</span
-		>
+			<button
+				type="button"
+				class="transport-key"
+				aria-label="Stop"
+				disabled={inert}
+				onclick={playback.stop}
+			>
+				<span class="key-dot" aria-hidden="true"></span>
+				<span aria-hidden="true">■</span>
+			</button>
+		</div>
 	</div>
 </div>
 
 <style>
 	.transport {
-		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
+		display: grid;
+		grid-template-rows: auto minmax(0, 1fr) auto;
 		gap: var(--space-xs);
 		min-width: 0;
+		height: 100%;
 	}
 
 	.program-pad {
@@ -147,14 +145,40 @@
 	.transport-row {
 		display: flex;
 		align-items: stretch;
+		gap: var(--space-sm);
+		min-width: 0;
+	}
+
+	.eject-block {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 2px;
+		flex-shrink: 0;
+	}
+
+	.eject-label {
+		font-family: var(--font-silk);
+		font-size: 0.42rem;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		color: var(--text-label);
+		line-height: 1;
+		white-space: nowrap;
+	}
+
+	.main-transport {
+		display: flex;
+		align-items: stretch;
 		gap: var(--space-2xs);
+		flex: 1;
 		min-width: 0;
 	}
 
 	.eject-key,
 	.transport-key {
 		position: relative;
-		height: 38px;
+		height: 34px;
 		min-width: 44px;
 		padding: 0 var(--space-xs);
 		background: var(--btn-surface);
@@ -173,18 +197,12 @@
 	}
 
 	.eject-key {
-		width: 52px;
-		flex-shrink: 0;
+		width: 34px;
+		min-width: 34px;
+		padding: 0;
 		display: flex;
-		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 2px;
-		padding-inline: var(--space-2xs);
-		font-family: var(--font-silk);
-		font-size: 0.42rem;
-		letter-spacing: 0.04em;
-		text-transform: uppercase;
 	}
 
 	.eject-glyph {
@@ -242,22 +260,6 @@
 		border-color: var(--chassis-panel-hi);
 		background: var(--chassis-bg);
 		box-shadow: none;
-	}
-
-	.model-mark {
-		align-self: flex-end;
-		font-family: var(--font-silk);
-		font-size: 0.44rem;
-		line-height: 1;
-		letter-spacing: 0.04em;
-		text-transform: uppercase;
-		white-space: nowrap;
-		color: var(--text-label);
-	}
-
-	.model-highlight {
-		font-size: 0.58rem;
-		color: var(--text-secondary);
 	}
 
 	@media (max-width: 900px) {
