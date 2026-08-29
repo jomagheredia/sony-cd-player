@@ -122,17 +122,19 @@
 
 			<div class="faceplate-grid">
 				<section class="faceplate-zone left-zone" aria-label="Power and navigation controls">
-					<PowerKey />
+					<div class="left-controls">
+						<PowerKey />
 
-					<div class="left-service-row">
-						<div class="phones">
-							<span class="phones-jack" aria-hidden="true"></span>
-							<span class="zone-silk">Phones</span>
+						<div class="left-service-row">
+							<div class="phones">
+								<span class="zone-silk">Phones</span>
+								<span class="phones-jack" aria-hidden="true"></span>
+							</div>
+							<LevelControl />
 						</div>
-						<LevelControl />
-					</div>
 
-					<AmsControls />
+						<AmsControls />
+					</div>
 				</section>
 
 				<section class="faceplate-zone center-zone" aria-label="Disc display">
@@ -140,8 +142,8 @@
 						<span class="bezel-screw bezel-screw--left" aria-hidden="true"></span>
 						<div class="tray-window">
 							<DisplayPanel />
+							<span class="disc-mark">Compact Disc Digital Audio</span>
 						</div>
-						<span class="disc-mark">Compact Disc Digital Audio</span>
 						<span class="bezel-screw bezel-screw--right" aria-hidden="true"></span>
 					</div>
 				</section>
@@ -154,6 +156,9 @@
 			<footer class="rail rail--bottom">
 				<span class="rail-silk">
 					Current Pulse D/A Converter · 2Hz–20kHz ±0.3dB · 119dB S/N · 0.0015% THD
+				</span>
+				<span class="model-mark">
+					Compact Disc Player&nbsp; CDP-<span class="model-highlight">XA7</span>ES
 				</span>
 			</footer>
 		</div>
@@ -207,7 +212,7 @@
 		border-radius: var(--radius);
 		padding: var(--space-sm) var(--space-md) var(--space-xs);
 		display: grid;
-		grid-template-rows: auto minmax(0, 1fr) auto;
+		grid-template-rows: minmax(0, 0.24fr) minmax(0, 1fr) auto;
 		gap: var(--space-xs);
 		/* Top bevel catches light, and the unit sits on a surface rather than floating. */
 		box-shadow:
@@ -235,8 +240,15 @@
 	.header-band,
 	.faceplate-grid {
 		display: grid;
-		grid-template-columns: minmax(0, 3fr) minmax(0, 4fr) minmax(0, 3fr);
+		grid-template-columns: minmax(0, 2.6fr) minmax(0, 4.4fr) minmax(0, 3fr);
 		column-gap: var(--space-sm);
+	}
+
+	.header-band {
+		min-height: 0;
+		align-items: center;
+		border-bottom: 1px solid var(--chassis-groove);
+		padding-bottom: var(--space-2xs);
 	}
 
 	.faceplate-grid {
@@ -333,24 +345,45 @@
 	}
 
 	.left-zone {
-		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
-		gap: var(--space-xs);
 		padding: var(--space-xs) var(--space-sm) var(--space-xs) 0;
 	}
 
-	.left-service-row {
+	.left-controls {
 		display: grid;
-		grid-template-columns: minmax(84px, auto) minmax(0, 1fr);
+		grid-template-columns: minmax(0, 1fr) auto;
+		grid-template-rows: minmax(0, 1fr) auto;
+		grid-template-areas:
+			'power .'
+			'service ams';
+		height: 100%;
+		min-height: 0;
+	}
+
+	.left-controls :global(.power-cluster) {
+		grid-area: power;
+		align-self: start;
+	}
+
+	.left-service-row {
+		grid-area: service;
+		display: grid;
+		grid-template-columns: auto auto;
 		align-items: end;
+		justify-content: start;
 		gap: var(--space-md);
+	}
+
+	.left-controls :global(.ams-controls) {
+		grid-area: ams;
+		align-self: end;
+		justify-self: end;
 	}
 
 	.phones {
 		display: flex;
+		flex-direction: column;
 		align-items: center;
-		gap: var(--space-xs);
+		gap: var(--space-2xs);
 	}
 
 	.phones-jack {
@@ -382,14 +415,13 @@
 	.tray-bezel {
 		position: relative;
 		width: 100%;
+		height: 100%;
 		min-width: 0;
 		min-height: 0;
 		box-sizing: border-box;
 		display: flex;
 		flex-direction: column;
-		justify-content: center;
-		gap: var(--space-2xs);
-		padding: var(--space-xs) var(--space-lg) var(--space-2xs);
+		padding: var(--space-xs) var(--space-lg);
 		border: 1px solid var(--chassis-edge);
 		box-shadow:
 			inset 0 0 0 2px var(--chassis-groove),
@@ -397,6 +429,7 @@
 	}
 
 	.tray-window {
+		position: relative;
 		min-width: 0;
 		min-height: 0;
 		flex: 1;
@@ -417,7 +450,10 @@
 	}
 
 	.disc-mark {
-		align-self: center;
+		position: absolute;
+		left: 50%;
+		bottom: 3px;
+		transform: translateX(-50%);
 		font-size: 0.48rem;
 		letter-spacing: 0.08em;
 		white-space: nowrap;
@@ -454,6 +490,8 @@
 	.rail {
 		display: flex;
 		align-items: baseline;
+		justify-content: space-between;
+		gap: var(--space-sm);
 	}
 
 	.rail--bottom {
@@ -465,6 +503,21 @@
 		font-size: 0.48rem;
 		letter-spacing: 0.1em;
 		white-space: nowrap;
+	}
+
+	.model-mark {
+		font-family: var(--font-silk);
+		font-size: 0.44rem;
+		line-height: 1;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		white-space: nowrap;
+		color: var(--text-label);
+	}
+
+	.model-highlight {
+		font-size: 0.58rem;
+		color: var(--text-secondary);
 	}
 
 	.track-panel {
@@ -499,6 +552,18 @@
 			min-height: 220px;
 		}
 
+		.left-controls {
+			grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+			grid-template-areas:
+				'power ams'
+				'service ams';
+			column-gap: var(--space-md);
+		}
+
+		.left-controls :global(.ams-controls) {
+			align-self: center;
+		}
+
 		.center-zone {
 			min-height: 260px;
 		}
@@ -528,7 +593,7 @@
 		}
 
 		.left-service-row {
-			grid-template-columns: minmax(84px, 0.7fr) minmax(0, 1fr);
+			grid-template-columns: auto auto;
 		}
 
 		.rail--bottom .rail-silk {
