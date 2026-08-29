@@ -34,7 +34,7 @@
 			{#if key}
 				<div class="program-cell">
 					<span class="program-label">{key.label}</span>
-					<button type="button" class="program-key" aria-label={key.ariaLabel} disabled={inert}
+					<button type="button" class="program-key btn-recess" aria-label={key.ariaLabel} disabled={inert}
 					></button>
 				</div>
 			{:else}
@@ -44,7 +44,7 @@
 	</div>
 
 	<div class="transport-row">
-		<button type="button" class="eject-key" aria-label="Open or close disc tray" disabled={inert}>
+		<button type="button" class="eject-key btn-proud" aria-label="Open or close disc tray" disabled={inert}>
 			<span class="eject-glyph" aria-hidden="true">△</span>
 			<span class="eject-label">Open/<br />Close</span>
 		</button>
@@ -52,7 +52,7 @@
 		<div class="main-transport">
 			<button
 				type="button"
-				class="transport-key transport-key--play"
+				class="transport-key transport-key--play btn-proud"
 				aria-label="Play"
 				disabled={inert}
 				onclick={playback.toggle}
@@ -63,7 +63,7 @@
 
 			<button
 				type="button"
-				class="transport-key"
+				class="transport-key btn-proud"
 				aria-label="Pause"
 				disabled={inert}
 				onclick={playback.toggle}
@@ -74,7 +74,7 @@
 
 			<button
 				type="button"
-				class="transport-key"
+				class="transport-key btn-proud"
 				aria-label="Stop"
 				disabled={inert}
 				onclick={playback.stop}
@@ -133,11 +133,11 @@
 		border-radius: 50%;
 		background: var(--btn-surface-hi);
 		cursor: pointer;
-		box-shadow: inset 0 1px 0 var(--chassis-panel-hi);
 		transition:
 			transform 80ms var(--ease-out-quart),
 			background 140ms var(--ease-out-quart),
-			border-color 140ms var(--ease-out-quart);
+			border-color 140ms var(--ease-out-quart),
+			box-shadow 80ms var(--ease-out-quart);
 	}
 
 	.transport-row {
@@ -179,11 +179,11 @@
 		font-size: 0.8rem;
 		line-height: 1;
 		cursor: pointer;
-		box-shadow: inset 0 1px 0 var(--chassis-panel-hi);
 		transition:
 			transform 80ms var(--ease-out-quart),
 			background 140ms var(--ease-out-quart),
-			border-color 140ms var(--ease-out-quart);
+			border-color 140ms var(--ease-out-quart),
+			box-shadow 80ms var(--ease-out-quart);
 	}
 
 	.eject-key {

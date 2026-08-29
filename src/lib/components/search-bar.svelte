@@ -108,7 +108,7 @@
 
 	.search-input:disabled {
 		color: var(--phosphor-low);
-		border-color: oklch(22% 0.007 260);
+		border-color: var(--chassis-panel-hi);
 	}
 
 	.search-key {
@@ -144,8 +144,8 @@
 
 	.search-key:disabled {
 		cursor: default;
-		color: oklch(38% 0.008 260);
-		border-color: oklch(24% 0.007 260);
+		color: color-mix(in oklch, var(--text-label) 45%, var(--chassis-panel));
+		border-color: var(--chassis-panel-hi);
 	}
 
 	@media (prefers-reduced-motion: reduce) {

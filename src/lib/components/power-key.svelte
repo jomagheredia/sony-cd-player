@@ -8,7 +8,7 @@
 	<div class="power-row">
 		<button
 			type="button"
-			class="power-key"
+			class="power-key btn-proud"
 			class:on={isOn}
 			aria-label="Power"
 			aria-pressed={isOn}
@@ -51,7 +51,6 @@
 		border-radius: var(--radius);
 		/* Lighter face than any other control — in standby this is the only live thing. */
 		background: var(--btn-surface-hi);
-		box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.04);
 		color: var(--btn-text);
 		font-family: var(--font-silk);
 		font-size: 0.5rem;
@@ -59,12 +58,13 @@
 		transition:
 			transform 80ms var(--ease-out-quart),
 			background 160ms var(--ease-out-quart),
-			border-color 160ms var(--ease-out-quart);
+			border-color 160ms var(--ease-out-quart),
+			box-shadow 80ms var(--ease-out-quart);
 	}
 
 	.power-key:hover {
 		border-color: var(--text-label);
-		background: oklch(29% 0.007 260);
+		background: var(--btn-border);
 	}
 
 	.power-key:active {

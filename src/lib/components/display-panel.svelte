@@ -227,8 +227,8 @@
 		box-shadow:
 			inset 0 2px 6px oklch(0% 0 0 / 0.9),
 			inset 0 0 30px oklch(0% 0 0 / 0.8),
-			0 0 0 1px var(--chassis-groove),
-			0 1px 0 var(--chassis-panel-hi);
+			0 -1px 0 var(--face-highlight),
+			0 1px 0 var(--face-shadow);
 		transition: background 420ms var(--ease-out-quart);
 	}
 
@@ -290,6 +290,20 @@
 			oklch(0% 0 0 / 0.18) 1px,
 			transparent 1px,
 			transparent 3px
+		);
+	}
+
+	/* Smoked plexi sheen — above the scanlines, below nothing; glass in front of the cavity. */
+	.display::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		z-index: 4;
+		background: linear-gradient(
+			155deg,
+			var(--glass-specular) 0%,
+			transparent 38%
 		);
 	}
 
@@ -583,6 +597,12 @@
 		.dots span,
 		.track-title.marquee .track-title-inner {
 			animation: none;
+		}
+	}
+
+	@media (prefers-contrast: more) {
+		.display::after {
+			display: none;
 		}
 	}
 </style>

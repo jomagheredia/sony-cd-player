@@ -57,8 +57,8 @@
 		border-radius: 50%;
 		background: var(--btn-surface-hi);
 		box-shadow:
-			inset 0 1px 0 var(--chassis-panel-hi),
-			inset 0 -2px 0 var(--chassis-groove);
+			inset 0 1px 0 var(--face-highlight),
+			inset 0 -2px 0 var(--face-shadow);
 		transform-origin: center;
 	}
 
