@@ -34,7 +34,11 @@
 			{#if key}
 				<div class="program-cell">
 					<span class="program-label">{key.label}</span>
-					<button type="button" class="program-key btn-recess" aria-label={key.ariaLabel} disabled={inert}
+					<button
+						type="button"
+						class="program-key btn-recess"
+						aria-label={key.ariaLabel}
+						disabled={inert}
 					></button>
 				</div>
 			{:else}
@@ -44,7 +48,12 @@
 	</div>
 
 	<div class="transport-row">
-		<button type="button" class="eject-key btn-proud" aria-label="Open or close disc tray" disabled={inert}>
+		<button
+			type="button"
+			class="eject-key btn-proud"
+			aria-label="Open or close disc tray"
+			disabled={inert}
+		>
 			<span class="eject-glyph" aria-hidden="true">△</span>
 			<span class="eject-label">Open/<br />Close</span>
 		</button>

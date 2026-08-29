@@ -300,11 +300,7 @@
 		inset: 0;
 		pointer-events: none;
 		z-index: 4;
-		background: linear-gradient(
-			155deg,
-			var(--glass-specular) 0%,
-			transparent 38%
-		);
+		background: linear-gradient(155deg, var(--glass-specular) 0%, transparent 38%);
 	}
 
 	.display-glyphs {
