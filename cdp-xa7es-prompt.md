@@ -67,11 +67,11 @@ faceplate sits _in_ the page rather than on it. The chassis has a max width of 1
 │ ⌐ON  ⌐OFF            │ │ SHUFFLE REPEAT     PLAY│ │ •  •  •  •  •    •   │
 │ ○ PHONES   LINE OUT  │ │ TRACK 01               │ │ 6  7  8  9 10        │
 │             ◯ LEVEL  │ │ dB  L ▮▮▮▮▮▯▯ R ▮▮▮▯ │ │ •  •  •  •  •        │
-│ [◄◄] [►►]            │ │ 02:47 ───────── 05:12  │ │ [OPEN] [►] [❙❙] [■] │
-│    AMS                │ └─────────────────────────┘ │ COMPACT DISC CDP-XA7ES│
+│ [◄◄] [►►]            │ │ 02:47 ───────── 05:12  │ │ [△ OPEN/CLOSE] [►][❙❙][■] │
+│    AMS                │ └─────────────────────────┘ │                       │
 │ [|◄◄] [►►|]          │ COMPACT DISC DIGITAL AUDIO │                       │
 ├──────────────────────┴─────────────────────────────┴───────────────────────┤
-│ CURRENT PULSE D/A CONVERTER · 2Hz–20kHz ±0.3dB · 119dB S/N · 0.0015% THD │
+│                                              COMPACT DISC PLAYER CDP-XA7ES │
 └────────────────────────────────────────────────────────────────────────────┘
 ┌────────────────────────────────────────────────────────────────────────────┐
 │ TRACK LIST + SEARCH — temporary external panel                            │

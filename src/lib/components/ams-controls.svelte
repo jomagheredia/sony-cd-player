@@ -53,7 +53,7 @@
 
 <style>
 	.ams-controls {
-		width: 116px;
+		width: 96px;
 		display: flex;
 		flex-direction: column;
 		gap: 2px;
@@ -76,7 +76,7 @@
 
 	.ams-key {
 		min-width: 0;
-		height: 20px;
+		height: 18px;
 		padding: 0 var(--space-2xs);
 		border: 1px solid var(--btn-border);
 		border-radius: var(--radius);
@@ -117,7 +117,7 @@
 
 	@media (max-width: 900px) {
 		.ams-controls {
-			width: 132px;
+			width: 112px;
 		}
 	}
 

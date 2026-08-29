@@ -131,9 +131,8 @@
 								<span class="phones-jack" aria-hidden="true"></span>
 							</div>
 							<LevelControl />
+							<AmsControls />
 						</div>
-
-						<AmsControls />
 					</div>
 				</section>
 
@@ -154,9 +153,6 @@
 			</div>
 
 			<footer class="rail rail--bottom">
-				<span class="rail-silk">
-					Current Pulse D/A Converter · 2Hz–20kHz ±0.3dB · 119dB S/N · 0.0015% THD
-				</span>
 				<span class="model-mark">
 					Compact Disc Player&nbsp; CDP-<span class="model-highlight">XA7</span>ES
 				</span>
@@ -307,8 +303,7 @@
 		color: var(--text-label);
 	}
 
-	.digital-label,
-	.rail-silk {
+	.digital-label {
 		font-family: var(--font-silk);
 		font-size: var(--type-silk);
 		letter-spacing: 0.16em;
@@ -325,7 +320,6 @@
 	}
 
 	.left-service-row,
-	.left-zone :global(.ams-controls),
 	.center-zone,
 	.right-zone {
 		transition: opacity 420ms var(--ease-out-quart);
@@ -333,7 +327,6 @@
 
 	/* Powered down, the controls recede; POWER stays at full contrast as the only live control. */
 	.machine[data-phase='standby'] .left-service-row,
-	.machine[data-phase='standby'] .left-zone :global(.ams-controls),
 	.machine[data-phase='standby'] .center-zone,
 	.machine[data-phase='standby'] .right-zone {
 		opacity: 0.5;
@@ -350,33 +343,25 @@
 
 	.left-controls {
 		display: grid;
-		grid-template-columns: minmax(0, 1fr) auto;
 		grid-template-rows: minmax(0, 1fr) auto;
-		grid-template-areas:
-			'power .'
-			'service ams';
 		height: 100%;
 		min-height: 0;
 	}
 
 	.left-controls :global(.power-cluster) {
-		grid-area: power;
 		align-self: start;
 	}
 
 	.left-service-row {
-		grid-area: service;
-		display: grid;
-		grid-template-columns: auto auto;
-		align-items: end;
-		justify-content: start;
-		gap: var(--space-md);
+		display: flex;
+		align-items: flex-end;
+		gap: var(--space-xs);
+		min-width: 0;
 	}
 
-	.left-controls :global(.ams-controls) {
-		grid-area: ams;
-		align-self: end;
-		justify-self: end;
+	.left-service-row :global(.ams-controls) {
+		margin-left: auto;
+		flex-shrink: 0;
 	}
 
 	.phones {
@@ -490,19 +475,13 @@
 	.rail {
 		display: flex;
 		align-items: baseline;
-		justify-content: space-between;
+		justify-content: flex-end;
 		gap: var(--space-sm);
 	}
 
 	.rail--bottom {
 		border-top: 1px solid var(--chassis-groove);
 		padding-top: var(--space-2xs);
-	}
-
-	.rail--bottom .rail-silk {
-		font-size: 0.48rem;
-		letter-spacing: 0.1em;
-		white-space: nowrap;
 	}
 
 	.model-mark {
@@ -553,15 +532,7 @@
 		}
 
 		.left-controls {
-			grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-			grid-template-areas:
-				'power ams'
-				'service ams';
-			column-gap: var(--space-md);
-		}
-
-		.left-controls :global(.ams-controls) {
-			align-self: center;
+			row-gap: var(--space-md);
 		}
 
 		.center-zone {
@@ -593,12 +564,8 @@
 		}
 
 		.left-service-row {
-			grid-template-columns: auto auto;
-		}
-
-		.rail--bottom .rail-silk {
-			white-space: normal;
-			line-height: 1.5;
+			flex-wrap: wrap;
+			row-gap: var(--space-sm);
 		}
 	}
 
@@ -620,7 +587,6 @@
 
 	@media (prefers-reduced-motion: reduce) {
 		.left-service-row,
-		.left-zone :global(.ams-controls),
 		.center-zone,
 		.right-zone {
 			transition-duration: 120ms;

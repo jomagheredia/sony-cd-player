@@ -4,6 +4,23 @@ Short entries after each build phase: what shipped, what's still open. Newest fi
 
 ---
 
+## 2026-08-29 — Faceplate copy and key anchoring
+
+**What shipped:**
+
+- Bottom rail no longer carries the spec string. The only chassis mark there is `COMPACT DISC PLAYER CDP-XA7ES`
+  on the right (`XA7` larger). `CURRENT PULSE D/A CONVERT SYSTEM` stays under `XA7ES` in the header.
+- Silkscreen re-anchored to the hardware: `PHONE LEVEL` under the knob with `LINE OUT` above and `0`/`10` at the
+  base; `OPEN/CLOSE` printed on the square key with the glyph; Digital Output / Play Mode wrap inside their pad
+  cells.
+- Left service cluster is one low row (PHONES, knob, AMS against the tray bezel) with POWER sitting above on metal.
+
+**What's still open:**
+
+- Phase B materials/finish, Phase D distinct play/pause handlers and rotary drag, Phase E tray loading surface.
+
+---
+
 ## 2026-08-29 — Phase A: faceplate proportion and zoning
 
 **What shipped:**
