@@ -495,7 +495,7 @@
 	}
 
 	.model-highlight {
-		font-size: 0.58rem;
+		font-size: 0.72rem;
 		color: var(--text-secondary);
 	}
 

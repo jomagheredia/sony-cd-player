@@ -46,7 +46,7 @@
 	<div class="transport-row">
 		<button type="button" class="eject-key" aria-label="Open or close disc tray" disabled={inert}>
 			<span class="eject-glyph" aria-hidden="true">△</span>
-			<span class="eject-label">Open/Close</span>
+			<span class="eject-label">Open/<br />Close</span>
 		</button>
 
 		<div class="main-transport">
@@ -149,12 +149,12 @@
 
 	.eject-label {
 		font-family: var(--font-silk);
-		font-size: 0.28rem;
+		font-size: 0.38rem;
 		letter-spacing: 0.02em;
 		text-transform: uppercase;
 		color: inherit;
-		line-height: 1;
-		white-space: nowrap;
+		line-height: 1.05;
+		text-align: center;
 	}
 
 	.main-transport {
@@ -168,7 +168,7 @@
 	.eject-key,
 	.transport-key {
 		position: relative;
-		height: 34px;
+		height: 40px;
 		min-width: 44px;
 		padding: 0 var(--space-xs);
 		background: var(--btn-surface);
@@ -187,20 +187,21 @@
 	}
 
 	.eject-key {
-		width: 38px;
-		min-width: 38px;
-		height: 34px;
-		padding: 2px 1px 3px;
+		width: 40px;
+		min-width: 40px;
+		height: 40px;
+		padding: 3px 2px 4px;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
 		gap: 1px;
 		flex-shrink: 0;
+		overflow: hidden;
 	}
 
 	.eject-glyph {
-		font-size: 0.48rem;
+		font-size: 0.5rem;
 		line-height: 1;
 	}
 
