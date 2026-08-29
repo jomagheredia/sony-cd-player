@@ -245,7 +245,7 @@
 	}
 
 	/* Cast-iron insulators as they read from the front: two dark blocks in the
-	   bottom padding, inside the chassis edge so overflow:hidden does not clip them. */
+	   bottom padding, darker than the terminal band so they read as separate feet. */
 	.machine::after {
 		content: '';
 		position: absolute;
@@ -255,8 +255,8 @@
 		height: 5px;
 		pointer-events: none;
 		background:
-			linear-gradient(var(--face-shadow), var(--face-shadow)) left / 26px 5px no-repeat,
-			linear-gradient(var(--face-shadow), var(--face-shadow)) right / 26px 5px no-repeat;
+			linear-gradient(var(--chassis-void), var(--chassis-void)) left / 26px 5px no-repeat,
+			linear-gradient(var(--chassis-void), var(--chassis-void)) right / 26px 5px no-repeat;
 	}
 
 	.header-band,

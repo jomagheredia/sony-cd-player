@@ -44,7 +44,7 @@
 	--btn-text: oklch(74% 0.01 75);
 	--btn-active: var(--phosphor);
 	--btn-proud-top: oklch(34% 0.01 80); /* Upper edge of raised buttons */
-	--btn-proud-shadow: oklch(0% 0 0 / 0.28); /* Ambient shadow under raised buttons */
+	--btn-proud-shadow: oklch(0% 0 0 / 0.4); /* Ambient shadow under raised buttons */
 	--btn-recess: oklch(12% 0.006 72); /* Interior of round button wells */
 
 	/* Silkscreen — printed on metal, never glowing.
