@@ -17,11 +17,13 @@ The signature element is a **segmented amber peak-level meter** driven by real a
 The live token set is `src/lib/styles/tokens.css` — read that file, not this block, when you need an exact
 value. The shape of the system:
 
-- **Chassis** (`--chassis-void`, `-bg`, `-panel`, `-panel-hi`, `-edge`, `-groove`) — cool-neutral anodized
-  aluminum at hue 260. `--chassis-void` is the room behind the machine; `--chassis-panel-hi` is the top bevel
+- **Chassis** (`--chassis-void`, `-bg`, `-panel`, `-panel-hi`, `-edge`, `-groove`) — warm champagne anodized
+  aluminum at hue ~75. `--chassis-void` is the room behind the machine; `--chassis-panel-hi` is the top bevel
   catching light.
-- **Gold** (`--gold`, `--gold-dim`) — the accent block beside POWER and ES-era badging. The only warm thing on
-  the chassis.
+- **Face** (`--face-highlight`, `-shadow`, `-grain`, `-groove`) — chamfer catch-light, terminal falloff,
+  brushed grain, and the machined step. Materials layered on the chassis, not a second palette.
+- **Gold** (`--gold`, `--gold-dim`) — the accent block beside POWER and ES-era badging. The only high-chroma
+  mark on the chassis.
 - **Cavity** (`--display-bg`, `--display-bg-deep`, `--segment-off`) — near-black at hue ~58. `--segment-off` is
   deliberately dark: an unlit VFD segment is _structure, not light_. If a silent meter looks lit, this value is
   wrong.
@@ -29,11 +31,13 @@ value. The shape of the system:
   amber emission ramp, plus red-orange for over-level segments.
 - **Silkscreen** (`--text-label`, `--text-secondary`) — printed on metal, never glowing. `--text-label` sits at
   62% lightness because that is the floor that clears WCAG AA for 10px labels on the faceplate.
+- **Relief** (`--btn-proud-top`, `--btn-proud-shadow`, `--btn-recess`, `--glass-specular`) — raised keys, round
+  wells, and the smoked-plexi sheen on the display window.
 
 Every color in every component derives from these. No raw values in component files.
 
-Two deliberate hue families, as on the machine: the chassis is cool-neutral, the cavity is warm amber. Nothing
-in the cavity is neutral; nothing on the chassis is warm except the gold.
+Two deliberate hue families, as on the machine: the chassis is warm champagne metal, the cavity is amber
+phosphor. Nothing in the cavity is cool-neutral; gold stays the only high-chroma mark on the chassis.
 
 ### Typography
 
@@ -158,6 +162,8 @@ browser, not just by reading the function.
 
 Simulated VFD cavity: `box-shadow: inset 0 0 24px oklch(0% 0 0 / 0.85), 0 0 10px oklch(82% 0.16 72 / 0.06)`
 
+The cavity reads as smoked plexi over a recess: keep the inset shadow, add a low-alpha diagonal `--glass-specular` sheen across the upper portion (`pointer-events: none`), layered above the scanlines. The bezel carries a thin light line on its top edge and a dark line on its bottom edge. Phosphor treatment inside the display is unchanged.
+
 Rows:
 
 1. Indicator strip: `SHUFFLE` / `REPEAT` / `REPEAT 1` left, status badge right. The indicators are lit/unlit
@@ -193,7 +199,10 @@ Status badge states — display is a pure function of power + the playback state
 
 ## Controls
 
-Rectangular, `border-radius: var(--radius)`, flat surface, 1px border. `transform: scale(0.96)` on `:active` with 80ms spring-back. Toggled state uses `--btn-active` for text and border.
+Rectangular keys sit proud of the panel: light 1px top edge, dark 1px bottom edge, tight ambient shadow
+(`--btn-proud-shadow`). `transform: scale(0.96)` on `:active` with 80ms spring-back, and the drop shadow
+swaps to an inset press so the key reads as pushed into the metal. Round program keys sit in a shallow
+circular well (`.btn-recess`). Toggled state uses `--btn-active` for text and border.
 
 Every control except POWER is genuinely `disabled` until `power.ready` — dimmed _and_ inert, so keyboard and
 assistive tech agree with what the eye sees. The global keydown handler returns early for the same reason.
@@ -298,10 +307,12 @@ Input plus a `SEARCH` key at the bottom of the track list panel.
 - No rounded or pill buttons
 - No card-style track rows, padding above 8px
 - No skeleton loaders — the display panel _is_ the loading state
-- No drop shadows on buttons; inset only. (The machine itself casts one soft shadow onto the surround — that
-  grounds the unit in the room and is not the same thing as shadowed chrome.)
-- No decorative gradient backgrounds on the chassis. The 1px anodized grain overlay at 1.2% alpha is a
-  _material_, not a wash; if it ever becomes visible as a gradient, it has gone too far.
+- No drop shadows on chrome, cards, or the track list. Raised faceplate keys may cast a tight, low-alpha
+  ambient shadow (`--btn-proud-shadow`); on `:active` that shadow becomes inset. The machine itself casts one
+  soft shadow onto the surround — that grounds the unit in the room.
+- No decorative gradient washes on the chassis. The vertical face fill, 1–2px grain overlay, top chamfer, and
+  terminal band are _materials_; if the grain ever becomes visible as a stripe pattern or a wash, it has gone
+  too far. `prefers-contrast: more` drops the grain and restores a flat `--chassis-panel`.
 - No coloured `border-left`/`border-right` accent stripes wider than 1px on rows, panels, or callouts
 - No glow on individual meter segments. The cavity-wide filament bloom is the only emission effect.
 - No spectrum analyser in place of the peak meter — wrong era

@@ -203,34 +203,60 @@
 		min-height: 0;
 		box-sizing: border-box;
 		font-family: var(--font-silk);
-		background: var(--chassis-panel);
+		/* Slightly lighter at the top, falling off into a darker terminal band. */
+		background: linear-gradient(
+			180deg,
+			color-mix(in oklch, var(--chassis-panel) 70%, var(--chassis-panel-hi)) 0%,
+			var(--chassis-panel) 22%,
+			var(--chassis-panel) 70%,
+			var(--face-shadow) 100%
+		);
 		border: 1px solid var(--chassis-edge);
 		border-radius: var(--radius);
 		padding: var(--space-sm) var(--space-md) var(--space-xs);
 		display: grid;
 		grid-template-rows: minmax(0, 0.24fr) minmax(0, 1fr) auto;
 		gap: var(--space-xs);
-		/* Top bevel catches light, and the unit sits on a surface rather than floating. */
+		/* Chamfer catch-light, terminal-band falloff, then the unit sitting in the room. */
 		box-shadow:
-			inset 0 1px 0 var(--chassis-panel-hi),
-			inset 0 -1px 0 var(--chassis-groove),
+			inset 0 2px 0 var(--face-highlight),
+			inset 0 -8px 12px var(--face-shadow),
 			0 30px 70px -30px oklch(0% 0 0 / 0.9);
 	}
 
-	/* Anodized grain — a material, not a decorative wash. Barely perceptible by design. */
+	/* Brushed grain — one overlay for the whole faceplate. Inset so it does not
+	   paint over the chamfer or the terminal band. */
 	.machine::before {
 		content: '';
 		position: absolute;
-		inset: 0;
+		top: 2px;
+		right: 0;
+		bottom: 8px;
+		left: 0;
 		z-index: -1;
 		pointer-events: none;
 		background: repeating-linear-gradient(
-			to bottom,
-			oklch(100% 0 0 / 0.012) 0px,
-			oklch(100% 0 0 / 0.012) 1px,
+			0deg,
+			var(--face-grain) 0px,
+			var(--face-grain) 1px,
 			transparent 1px,
-			transparent 3px
+			transparent 2px
 		);
+	}
+
+	/* Cast-iron insulators as they read from the front: two dark blocks in the
+	   bottom padding, darker than the terminal band so they read as separate feet. */
+	.machine::after {
+		content: '';
+		position: absolute;
+		left: 7%;
+		right: 7%;
+		bottom: 2px;
+		height: 5px;
+		pointer-events: none;
+		background:
+			linear-gradient(var(--chassis-void), var(--chassis-void)) left / 26px 5px no-repeat,
+			linear-gradient(var(--chassis-void), var(--chassis-void)) right / 26px 5px no-repeat;
 	}
 
 	.header-band,
@@ -245,7 +271,9 @@
 		grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
 		min-height: 0;
 		align-items: center;
-		border-bottom: 1px solid var(--chassis-groove);
+		/* Machined step: dark groove with a 1px highlight directly beneath it. */
+		border-bottom: 1px solid var(--face-groove);
+		box-shadow: 0 1px 0 var(--face-highlight);
 		padding-bottom: var(--space-2xs);
 	}
 
@@ -382,8 +410,10 @@
 		box-sizing: border-box;
 		border: 3px solid var(--gold-dim);
 		border-radius: 50%;
-		background: var(--chassis-groove);
-		box-shadow: 0 0 0 1px var(--chassis-edge);
+		background: var(--btn-recess);
+		box-shadow:
+			inset 0 1px 1px var(--face-shadow),
+			inset 0 -1px 0 var(--face-highlight);
 	}
 
 	.zone-silk,
@@ -412,9 +442,13 @@
 		flex-direction: column;
 		padding: var(--space-xs) var(--space-lg);
 		border: 1px solid var(--chassis-edge);
+		border-top-color: var(--face-highlight);
+		border-bottom-color: var(--face-shadow);
 		box-shadow:
 			inset 0 0 0 2px var(--chassis-groove),
-			inset 0 1px 0 3px var(--chassis-panel-hi);
+			inset 0 1px 0 3px var(--chassis-panel-hi),
+			inset 0 1px 0 var(--face-highlight),
+			inset 0 -1px 0 var(--face-shadow);
 	}
 
 	.tray-window {
@@ -451,13 +485,27 @@
 	.bezel-screw {
 		position: absolute;
 		top: 50%;
-		width: 6px;
-		height: 6px;
+		width: 8px;
+		height: 8px;
 		box-sizing: border-box;
 		border-radius: 50%;
-		border: 1px solid var(--chassis-edge);
-		background: var(--chassis-groove);
+		border: 0;
+		background: var(--btn-recess);
+		box-shadow:
+			inset 0 1px 1px var(--face-shadow),
+			inset 0 -1px 0 var(--face-highlight);
 		transform: translateY(-50%);
+	}
+
+	.bezel-screw::before {
+		content: '';
+		position: absolute;
+		top: 50%;
+		left: 15%;
+		width: 70%;
+		height: 1px;
+		background: var(--face-highlight);
+		transform: translateY(-50%) rotate(-22deg);
 	}
 
 	.bezel-screw--left {
@@ -594,6 +642,37 @@
 		.center-zone,
 		.right-zone {
 			transition-duration: 120ms;
+		}
+	}
+
+	@media (prefers-contrast: more) {
+		.machine {
+			background: var(--chassis-panel);
+			box-shadow: 0 30px 70px -30px oklch(0% 0 0 / 0.9);
+		}
+
+		.machine::before,
+		.machine::after {
+			display: none;
+		}
+
+		.header-band {
+			border-bottom-color: var(--chassis-edge);
+			box-shadow: none;
+		}
+
+		.tray-bezel {
+			border-color: var(--chassis-edge);
+			box-shadow: inset 0 0 0 2px var(--chassis-groove);
+		}
+
+		.bezel-screw,
+		.phones-jack {
+			box-shadow: none;
+		}
+
+		.bezel-screw::before {
+			display: none;
 		}
 	}
 </style>

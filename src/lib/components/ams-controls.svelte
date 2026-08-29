@@ -9,7 +9,7 @@
 	<div class="ams-row">
 		<button
 			type="button"
-			class="ams-key"
+			class="ams-key btn-proud"
 			aria-label="Scan backward"
 			disabled={inert}
 			onclick={() => playback.seekBy(-5)}
@@ -18,7 +18,7 @@
 		</button>
 		<button
 			type="button"
-			class="ams-key"
+			class="ams-key btn-proud"
 			aria-label="Scan forward"
 			disabled={inert}
 			onclick={() => playback.seekBy(5)}
@@ -32,7 +32,7 @@
 	<div class="ams-row">
 		<button
 			type="button"
-			class="ams-key"
+			class="ams-key btn-proud"
 			aria-label="Previous track"
 			disabled={inert}
 			onclick={playback.previous}
@@ -41,7 +41,7 @@
 		</button>
 		<button
 			type="button"
-			class="ams-key"
+			class="ams-key btn-proud"
 			aria-label="Next track"
 			disabled={inert}
 			onclick={playback.next}
@@ -86,11 +86,11 @@
 		font-size: var(--type-silk);
 		line-height: 1;
 		cursor: pointer;
-		box-shadow: inset 0 1px 0 var(--chassis-panel-hi);
 		transition:
 			transform 80ms var(--ease-out-quart),
 			background 140ms var(--ease-out-quart),
-			border-color 140ms var(--ease-out-quart);
+			border-color 140ms var(--ease-out-quart),
+			box-shadow 80ms var(--ease-out-quart);
 	}
 
 	.ams-key:hover:not(:disabled) {

@@ -134,7 +134,7 @@
 	}
 
 	.rows li:nth-child(odd) .row {
-		background: oklch(11% 0.004 260 / 0.5);
+		background: color-mix(in oklch, var(--chassis-bg) 50%, transparent);
 	}
 
 	.row-cue {
@@ -187,7 +187,7 @@
 
 	.row:hover:not(:disabled) {
 		background: var(--btn-surface);
-		color: oklch(84% 0.012 260);
+		color: var(--btn-text);
 	}
 
 	.row.active:not(:disabled) {
@@ -206,13 +206,13 @@
 
 	.row:disabled {
 		cursor: default;
-		color: oklch(42% 0.008 260);
+		color: color-mix(in oklch, var(--text-label) 55%, var(--chassis-panel));
 	}
 
 	.row:disabled .row-index,
 	.row:disabled .row-artist,
 	.row:disabled .row-time {
-		color: oklch(34% 0.008 260);
+		color: color-mix(in oklch, var(--text-label) 40%, var(--chassis-panel));
 	}
 
 	.rows-empty {

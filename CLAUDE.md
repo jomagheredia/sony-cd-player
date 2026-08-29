@@ -54,12 +54,12 @@ Tribute to the Sony CDP-XA7ES (1995 Japanese high-end CD transport), adapted for
 
 **Anti-references:** default AI-slop interfaces; Technics/Pioneer green meters; spectrum analysers; Spotify-like players; cards, pills, soft drop shadows, glow-on-segments; light mode; rounded consumer chrome.
 
-**Tokens & type:** OKLCH palette from the chassis/display system stays the source of truth (amber phosphor, cool-neutral aluminum). `Share Tech Mono` is a strong default for VFD/display characters — other mono faces may be tested if they read closer to real XA7ES display typography; body/silkscreen stays `system-ui` stacks. Hardware silkscreen strings (`TRACK`, `PLAY`, `NO DISC`, etc.) stay English as on the machine.
+**Tokens & type:** OKLCH palette from the chassis/display system stays the source of truth (amber phosphor, warm champagne aluminum). `Share Tech Mono` is a strong default for VFD/display characters — other mono faces may be tested if they read closer to real XA7ES display typography; body/silkscreen stays `system-ui` stacks. Hardware silkscreen strings (`TRACK`, `PLAY`, `NO DISC`, etc.) stay English as on the machine.
 
 ### Design Principles
 
 1. **Meter first** — everything else stays quiet so the segmented amber peak meter carries the page; it must feel like an instrument driven by real (or honest artifact-fallback) signal.
 2. **Hardware grammar, browser craft** — keep ES-era language (rectangular controls, hard segment edges, inset display cavity, amber not green) while adapting layout, hit targets, and motion for a digital interface.
-3. **Refined materials** — anodized metal, warm-dark cavity, phosphor that bleeds into black; never cheap plastic, glassmorphism, or decorative gradients on the chassis.
+3. **Refined materials** — anodized metal, warm-dark cavity, phosphor that bleeds into black; never cheap plastic or glassmorphism. Faceplate gradients are materials (grain, chamfer, falloff), not decoration.
 4. **Restraint over novelty** — fewer elements, sharper hierarchy; no cards, pills, skeleton loaders, or marketing chrome. The display panel _is_ the loading/error state.
 5. **Honest systems** — deployed build: real `AnalyserNode` data only; artifact build may synthesize envelope. Prefer `prefers-reduced-motion` and WCAG AA on interactive surfaces without diluting the tribute.

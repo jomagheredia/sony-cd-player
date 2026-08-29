@@ -4,6 +4,26 @@ Short entries after each build phase: what shipped, what's still open. Newest fi
 
 ---
 
+## 2026-08-29 — Phase B: materials and finish
+
+**What shipped:**
+
+- Chassis tokens shifted from cool hue 260 to warm champagne (~75). New face/relief tokens
+  (`--face-highlight`, `--face-shadow`, `--face-grain`, `--face-groove`, `--btn-proud-*`, `--btn-recess`,
+  `--glass-specular`). Amber display tokens unchanged.
+- Faceplate layers: vertical metal fill, one grain overlay, top chamfer, machined header groove, terminal
+  band, tray-bezel screws with slots, and two insulator blocks at the bottom edge.
+- Display cavity reads as smoked plexi (diagonal sheen above scanlines; light-top / dark-bottom bezel).
+- Rectangular keys sit proud and press in; round program keys sit in recessed wells. `prefers-contrast: more`
+  drops grain and flattens relief. Silkscreen nudged warm; leftover hue-260 component colors retokenized.
+
+**What's still open:**
+
+- Phase D distinct play/pause handlers and rotary drag, Phase E tray loading surface.
+- Portfolio screenshot (meter lit during playback).
+
+---
+
 ## 2026-08-29 — Docs synced to Phase A + production deploy
 
 **What shipped:**
