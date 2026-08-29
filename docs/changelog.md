@@ -4,6 +4,22 @@ Short entries after each build phase: what shipped, what's still open. Newest fi
 
 ---
 
+## 2026-08-29 — Docs synced to Phase A + production deploy
+
+**What shipped:**
+
+- `docs/architecture.md` now matches the repo: pinned `adapter-vercel`, `power.svelte.ts`, DSEG7 + Share Tech Mono, 30/40/30 faceplate with the temporary track panel, `queue.reading`, search hits (not `Track[]`), production URL.
+- `docs/prd.md` marks success criteria 1–5 as shipped and lists remaining work (screenshot, phases B / D / E). Six-week timeline kept as historical scope.
+- `ai-context.md` artifact recipe is `adapter-static` + `bundleStrategy: 'inline'` (not `vite-plugin-singlefile`); remaining work is screenshot + B / D / E, not the Vercel deploy.
+- `cdp-xa7es-prompt.md` branding list matches the bottom-rail model mark; responsive constraint matches the Layout breakpoints.
+
+**What's still open:**
+
+- Phase B materials/finish, Phase D distinct play/pause handlers and rotary drag, Phase E tray loading surface.
+- Portfolio screenshot (meter lit during playback).
+
+---
+
 ## 2026-08-29 — Faceplate copy and key anchoring
 
 **What shipped:**

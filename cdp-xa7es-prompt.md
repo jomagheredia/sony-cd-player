@@ -274,8 +274,8 @@ Input plus a `SEARCH` key at the bottom of the track list panel.
 - Header center: `XA7ES` in gold with `CURRENT PULSE D/A CONVERT SYSTEM` beneath
 - Header right: `DIGITAL OUT` with its LED dot
 - Tray bezel: centered `COMPACT DISC DIGITAL AUDIO`
-- Right zone: `COMPACT DISC PLAYER CDP-XA7ES`, with `XA7` larger than its surrounding text
-- Bottom rail: the unit specification string
+- Right zone: program pad and split transport (play / pause / stop / open-close)
+- Bottom rail: `COMPACT DISC PLAYER CDP-XA7ES` only, with `XA7` larger than its surrounding text — no spec string
 
 ---
 
@@ -289,7 +289,7 @@ Input plus a `SEARCH` key at the bottom of the track list panel.
 - `prefers-reduced-motion`: skip the self-test and collapse warm-up to a fade, freeze the title scroll, disable
   transitions, hold meter at RMS instead of animating peaks
 - WCAG AA contrast on all interactive elements; visible keyboard focus
-- Responsive to 360px — single column below 600px
+- Responsive to 360px — aspect ratio released below 900px (zones stack); compact header below 720px; chassis edge-to-edge below 420px
 - Dark only
 
 ### Anti-patterns
